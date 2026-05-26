@@ -1,0 +1,29 @@
+# Flutter generated
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+
+# Flutter build outputs
+**/build/
+
+# macOS archive junk
+__MACOSX/
+
+# Python compiled
+**/__pycache__/
+
+# Uploads & runtime files
+Backend_main/uploads/
+*.log
+
+# Firebase secrets
+Backend_main/firebase/service_account.json
+
+# VSCode
+.vscode/
+
+# Coverage / temp
+coverage/
+tmp/
+temp/
