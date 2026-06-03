@@ -4,9 +4,9 @@ import {ErrorAlert, PartnerMyAppointments} from "@/utils/commonTypes";
 import React, {useEffect, useRef, useState} from "react";
 import PartnerAppointmentCard from "@/components/partner/PartnerAppointmentCard";
 import {api} from "@/utils/api";
-import FullScreenLoader from "@/components/customer/fullScreenLoader";
+import { LoadingState } from "@/components/common/LoadingState";
 import {removeItemById} from "@/utils/common";
-import {ErrorBanner} from "@/components/common/ErrorBanner";
+import { AlertBanner } from "@/components/common/AlertBanner";
 
 const TABS = ['Upcoming', 'Completed', 'Ongoing', 'No Show'] as const;
 type TabType = (typeof TABS)[number];
@@ -72,13 +72,14 @@ export default function PartnerMyAppointmentsPage()  {
         <>
             {/* Show all visible error banners */}
             {errors.map(e => (
-                <ErrorBanner
-                    key={e.id}
-                    title={e.title}
-                    message={e.message}
-                    visible={true}
-                    onDismiss={() => handleDismiss(e.id)}
-                />
+                <div key={e.id} className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+                    <AlertBanner
+                        type="danger"
+                        title={e.title}
+                        message={e.message}
+                        onDismiss={() => handleDismiss(e.id)}
+                    />
+                </div>
             ))}
             <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-6">
                 <div className="max-w-7xl mx-auto">
@@ -127,7 +128,7 @@ export default function PartnerMyAppointmentsPage()  {
                     )}
                 </div>
             </div>
-            <FullScreenLoader loading={loading}/>
+            {loading && <LoadingState fullScreen message="Loading..." />}
         </>
     );
 }

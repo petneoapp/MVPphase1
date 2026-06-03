@@ -7,15 +7,13 @@ import { PageType } from "@/app/customer/dashboard/constants";
 import { api, clearAuth } from "@/utils/api";
 import { transformAppointments } from "./cMyAppointments";
 import { AppointmentDetails } from "./appointmentStatus";
-import FullScreenLoader from "./fullScreenLoader";
-import DoctorCard from "./doctorCard";
 import DashboardGreeting from "./DashboardGreeting";
 import QuickServices from "./QuickServices";
 import RecentAppointments from "./RecentAppointments";
 import { VISIT_ID } from "./cVetAppointmentBooking";
 import { ErrorAlert } from "@/utils/commonTypes";
 import { removeItemById } from "@/utils/common";
-import { ErrorBanner } from "../common/ErrorBanner";
+import { AlertBanner } from "@/components/common/AlertBanner";
 import { DashboardErrorBoundary } from "@/components/common/DashboardErrorBoundary";
 
 export enum ServiceName {
@@ -136,13 +134,14 @@ export default function C_DashboardMain({ user, pets, onViewPetDetails, onPageTy
         <div className="px-6 py-6 max-w-7xl mx-auto space-y-10">
             {/* Show all visible error banners */}
             {errors.map(e => (
-                <ErrorBanner
-                    key={e.id}
-                    title={e.title}
-                    message={e.message}
-                    visible={true}
-                    onDismiss={() => handleDismiss(e.id)}
-                />
+                <div key={e.id} className="mb-4">
+                    <AlertBanner
+                        type="danger"
+                        title={e.title}
+                        message={e.message}
+                        onDismiss={() => handleDismiss(e.id)}
+                    />
+                </div>
             ))}
 
             <DashboardErrorBoundary sectionName="My Pets">

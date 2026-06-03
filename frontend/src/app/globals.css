@@ -3,24 +3,72 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-info: #3b82f6;
+  --color-pending: #f59e0b;
+  --color-in-progress: #3b82f6;
+  --color-completed: #10b981;
+  --color-cancelled: #6b7280;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  
+  /* Operational Colors */
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-danger: var(--color-danger);
+  --color-info: var(--color-info);
+  --color-pending: var(--color-pending);
+  --color-in-progress: var(--color-in-progress);
+  --color-completed: var(--color-completed);
+  --color-cancelled: var(--color-cancelled);
+
+  /* Typography */
+  --font-heading: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  --font-body: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  --font-label: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  --font-caption: var(--font-geist-mono), monospace;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem; /* 4px */
+  --spacing-sm: 0.5rem;  /* 8px */
+  --spacing-md: 1rem;    /* 16px */
+  --spacing-lg: 1.5rem;  /* 24px */
+  --spacing-xl: 2rem;    /* 32px */
+
+  /* Radius */
+  --radius-sm: 0.25rem; /* 4px */
+  --radius-md: 0.5rem;  /* 8px */
+  --radius-lg: 1rem;    /* 16px */
+
+  /* Elevation */
+  --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-modal: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-drawer: -4px 0 25px -5px rgb(0 0 0 / 0.1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --color-success: #059669;
+    --color-warning: #d97706;
+    --color-danger: #dc2626;
+    --color-info: #2563eb;
+    --color-pending: #d97706;
+    --color-in-progress: #2563eb;
+    --color-completed: #059669;
+    --color-cancelled: #9ca3af;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-body);
 }
+

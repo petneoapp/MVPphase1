@@ -9,10 +9,10 @@ import LocationSelector, { Home_Visit_Address } from "./locationSelector";
 import SlotPicker, { DaySlots, TimeSlot } from "./slotPicker";
 import AppointmentStatus from "./appointmentStatus";
 import { api } from "@/utils/api";
-import FullScreenLoader from "./fullScreenLoader";
-import {removeItemById} from "@/utils/common";
-import {ErrorBanner} from "../common/ErrorBanner";
-import {ErrorAlert} from "@/utils/commonTypes";
+import { LoadingState } from "@/components/common/LoadingState";
+import { removeItemById } from "@/utils/common";
+import { AlertBanner } from "@/components/common/AlertBanner";
+import { ErrorAlert } from "@/utils/commonTypes";
 
 interface C_VetAppointmentBookingProps {
     user: User | null;
@@ -225,6 +225,9 @@ export default function C_VetAppointmentBooking({ user, vet, userPets, selectedS
     };
 
     function renderBookingScreen() {
+        if (loading) {
+            return <LoadingState fullScreen message="Loading..." />;
+        }
         return (
             <div className="min-h-screen bg-[#e3e8f9] flex flex-col items-center py-10 px-6">
                 <div className="w-full max-w-7xl mb-4">
@@ -254,22 +257,6 @@ export default function C_VetAppointmentBooking({ user, vet, userPets, selectedS
 
                     {/* Right Content */}
                     <div className="md:w-8/20 flex flex-col p-6">
-                        {/* Visit Type */}
-                        {/*<div className="mb-4">*/}
-                        {/*<label className="block text-sm font-semibold mb-1">Visit Type</label>*/}
-                        {/*<div className="relative">*/}
-                        {/*    <select className= "font-semibold w-full bg-white border rounded px-3 py-2 appearance-none"*/}
-                        {/*    value={selectedVisitType?.id || ""}*/}
-                        {/*    disabled*/}
-                        {/*    onChange={(event) => setSelectedVisitType(VISIT_TYPES.find((item) => item.id === event.target.value))}>*/}
-                        {/*    <option value="" disabled hidden>Select Visit Type</option>*/}
-                        {/*    {VISIT_TYPES.map((v, i) => (*/}
-                        {/*        <option key={i} value={v.id}>{v.displayName}</option>*/}
-                        {/*    ))}*/}
-                        {/*    </select>*/}
-                        {/*    <IoChevronDown className="absolute right-3 top-3 text-gray-500" />*/}
-                        {/*</div>*/}
-                        {/*</div>*/}
 
                         {/* Pick Location */}
                         {selectedVisitType?.id === VISIT_ID.HOME_VISIT && 
@@ -350,17 +337,17 @@ export default function C_VetAppointmentBooking({ user, vet, userPets, selectedS
         <>
             {/* Show all visible error banners */}
             {errors.map(e => (
-                <ErrorBanner
-                    key={e.id}
-                    title={e.title}
-                    message={e.message}
-                    visible={true}
-                    onDismiss={() => handleDismiss(e.id)}
-                />
+                <div key={e.id} className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+                    <AlertBanner
+                        type="danger"
+                        title={e.title}
+                        message={e.message}
+                        onDismiss={() => handleDismiss(e.id)}
+                    />
+                </div>
             ))}
             {screenType === SCREEN_TYPE.BOOKING && renderBookingScreen()}
             {screenType === SCREEN_TYPE.CONFIRMATION && renderConfirmationScreen()}
-            <FullScreenLoader loading={loading}/>
         </>
     );
 }

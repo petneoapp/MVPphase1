@@ -1,12 +1,12 @@
-import {FaCalendarAlt, FaClock, FaPlus, FaSyringe} from "react-icons/fa";
-import {HiOutlineDocumentText} from "react-icons/hi";
+import {FaPlus} from "react-icons/fa";
 import React, {useEffect, useRef, useState} from "react";
 import {api} from "@/utils/api";
-import FullScreenLoader from "./fullScreenLoader";
+import { LoadingState } from "@/components/common/LoadingState";
 import PopupModel from "./popupModel";
-import {ErrorBanner} from "../common/ErrorBanner";
-import {ErrorAlert} from "@/utils/commonTypes";
-import {removeItemById} from "@/utils/common";
+import { AlertBanner } from "@/components/common/AlertBanner";
+import { ErrorAlert } from "@/utils/commonTypes";
+import { removeItemById } from "@/utils/common";
+import { TimelineView, TimelineEvent } from "@/components/common/TimelineView";
 
 interface C_PetHistoryProps {
     petId: number;
@@ -178,28 +178,52 @@ export default function C_PetHistory({petId} : C_PetHistoryProps) {
         });
     };
 
-    const handleViewPrescription = (prescription: Prescription) => {
-        return () => {
-            window.open(prescription.prescription_file_url);
-        };
-    };
 
     const [activeTab, setActiveTab] = useState<'visit-details' | 'medical-history'>(
         'visit-details'
     );
 
+    const visitEvents: TimelineEvent[] = visitHistory.map(app => ({
+        id: app.appointment_id.toString(),
+        title: app.visit_type === 'in-clinic' ? 'Clinic Consultation' : app.visit_type === 'tele' ? 'Online Consultation' : 'Home Visit',
+        description: app.reason || 'No specific reason provided.',
+        timestamp: `${app.date} ${app.start_time} - ${app.end_time}`,
+        status: app.status === 'completed' ? 'success' : app.status === 'cancelled' ? 'danger' : 'info'
+    }));
+
+    const medicalEvents: TimelineEvent[] = [
+        ...vaccinations.map(v => ({
+            id: `vac-${v.id}`,
+            title: v.vaccination_name,
+            description: `Dose: ${v.dose_type}`,
+            timestamp: v.date_vaccinated,
+            status: 'success' as const
+        })),
+        ...prescriptions.map(p => ({
+            id: `presc-${p.id}`,
+            title: 'Prescription Uploaded',
+            description: p.text || 'No description',
+            timestamp: p.created_at,
+            status: 'info' as const,
+            attachments: [{ name: 'View Document', url: p.prescription_file_url }]
+        }))
+    ].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+
     return (
         <>
             {/* Show all visible error banners */}
             {errors.map(e => (
-                <ErrorBanner
-                    key={e.id}
-                    title={e.title}
-                    message={e.message}
-                    visible={true}
-                    onDismiss={() => handleDismiss(e.id)}
-                />
+                <div key={e.id} className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+                    <AlertBanner
+                        type="danger"
+                        title={e.title}
+                        message={e.message}
+                        onDismiss={() => handleDismiss(e.id)}
+                    />
+                </div>
             ))}
+            
             <div className="max-w-2xl mx-auto mt-8">
                 {/* Tab Navigation */}
                 <div className="flex gap-2 mb-8 justify-center flex-wrap">
@@ -220,85 +244,30 @@ export default function C_PetHistory({petId} : C_PetHistoryProps) {
                         </button>
                     ))}
                 </div>
+                
                 <div className="transition-opacity duration-300">
-                    {/* visit Details Tab */}
                     {activeTab === 'visit-details' && (
-                        <div>
-                            {(!visitHistory ||  visitHistory.length === 0) &&
-                                (
-                                    <div className="text-center py-12">
-                                        <p className="text-gray-500">No Visit History</p>
-                                    </div>
-                                )
-                            }
-                            {visitHistory?.map((appointment) => (
-                                <div
-                                    key={appointment.appointment_id}
-                                    className="bg-white border-2 border-purple-200 rounded-xl p-5 mb-5 flex justify-between items-center gap-4"
-                                >
-                                    <div className="flex items-center flex-1">
-                                        <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-xl mr-4 flex-shrink-0 text-purple-600">
-                                            <FaClock />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm text-gray-900 uppercase font-bold mb-1">
-                                                {appointment.date}
-                                            </p>
-                                            <p className="text-sm font-bold text-gray-900 mb-1">
-                                                {appointment.start_time} - {appointment.end_time}
-                                            </p>
-                                            <p className="text-xs text-gray-600">
-                                                {appointment.visit_type === 'in-clinic'
-                                                    ? 'Consultation'
-                                                    : appointment.visit_type === 'tele'
-                                                        ? 'Online'
-                                                        : 'Home Visit'
-                                                }
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="bg-cyan-300 text-cyan-900 uppercase px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap flex-shrink-0">
-                                        {appointment.status}
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="bg-white rounded-2xl shadow p-6">
+                            <h2 className="text-lg font-semibold mb-6">Recent Visits</h2>
+                            <TimelineView events={visitEvents} />
                         </div>
                     )}
 
-                    {/* Medical History Tab */}
                     {activeTab === 'medical-history' && (
-                        <div className="min-h-screen bg-[#eaeaff] flex flex-col items-center py-8">
-                            <div className="w-full max-w-md">
-                                <div className="flex items-center justify-between mb-2">
-                                    <h2 className="text-md font-semibold">Vaccinations</h2>
+                        <div className="min-h-screen flex flex-col items-center">
+                            <div className="w-full">
+                                <div className="bg-white rounded-2xl shadow p-6 mb-6">
+                                    <div className="flex items-center justify-between mb-6">
+                                        <h2 className="text-lg font-semibold">Medical Timeline</h2>
+                                        <button className="flex items-center justify-center bg-pink-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-pink-600"
+                                                onClick={handleAddDocuments}>
+                                            <FaPlus className="mr-2" />
+                                            Add Record
+                                        </button>
+                                    </div>
+                                    <TimelineView events={medicalEvents} />
                                 </div>
-                                <div className="bg-white rounded-2xl shadow divide-y divide-gray-200 mb-4">
-                                    {vaccinations.length > 0 ?
-                                        vaccinations.map((vaccine) => (
-                                            <div key={vaccine.id} className="flex items-center justify-between px-4 py-4">
-                                                <div>
-                                                    <div className="text-sm font-bold">{vaccine.vaccination_name}</div>
-                                                    <div className="flex items-center text-xs text-gray-500 mt-1">
-                                                        <FaSyringe size={15} className="mr-2" />
-                                                        <span className="mt-1">{vaccine.dose_type}</span>
-                                                    </div>
-                                                    <div className="flex items-center text-xs text-gray-500">
-                                                        <FaCalendarAlt size={15} className="mr-2" />
-                                                        <span className="mt-1">{vaccine.date_vaccinated}</span>
-                                                    </div>
-                                                </div>
-                                                <HiOutlineDocumentText className="text-gray-700 mr-8" size={50} />
-                                            </div>
-                                        )) :
-                                        <div className="flex items-center justify-items-center grid grid-cols-1 min-h-30">
-                                            <span>No Vaccination Data</span>
-                                        </div>}
-                                </div>
-                                <button className="w-full flex items-center justify-center bg-pink-500 text-white py-4 rounded-xl text-md font-medium mt-8 hover:bg-pink-600"
-                                        onClick={handleAddDocuments}>
-                                    <FaPlus />
-                                    Add Documents
-                                </button>
+                                
                                 <PopupModel open={isPopupOpen} onCancel={handlePopupCancel} onPrimary={handlePrimaryAction} primaryLabel="Save">
                                     <form className="w-full max-w-lg bg-white rounded-xl px-8 py-10 shadow-lg">
                                         <h2 className="text-base font-bold mb-8 text-center">Enter Vaccination Details</h2>
@@ -341,36 +310,12 @@ export default function C_PetHistory({petId} : C_PetHistoryProps) {
                                         </div>
                                     </form>
                                 </PopupModel>
-                                <div className="flex items-center justify-between mt-15 mb-2">
-                                    <h2 className="text-md font-semibold">Prescriptions/ Medical Reports</h2>
-                                </div>
-                                <div className="bg-white rounded-2xl shadow divide-y divide-gray-200 mb-4">
-                                    {prescriptions.length > 0 ?
-                                        prescriptions.map((prescription) => (
-                                            <div key={prescription.id} className="flex items-center justify-between px-4 py-4">
-                                                <div>
-                                                    <div className="flex-col items-center text-xs text-gray-500 mt-1">
-                                                        <img alt="prescription image" src="/images/customer/prescription.png"/>
-                                                        <span className="mt-1">{prescription.created_at}</span>
-                                                    </div>
-                                                </div>
-                                                <button className="w-[8vw] bg-pink-500 text-white py-4 rounded-xl text-md font-medium hover:bg-pink-600"
-                                                        onClick={handleViewPrescription(prescription)}>
-                                                    View
-                                                </button>
-                                            </div>
-                                        )) :
-                                        <div className="flex items-center justify-items-center grid grid-cols-1 min-h-30">
-                                            <span>No Prescription Data</span>
-                                        </div>}
-                                </div>
                             </div>
-                            <FullScreenLoader loading={loading}/>
                         </div>
                     )}
                 </div>
             </div>
+            {loading && <LoadingState fullScreen message="Loading pet history..." />}
         </>
-
     );
 }

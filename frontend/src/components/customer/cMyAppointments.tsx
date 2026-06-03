@@ -7,11 +7,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { FaFilter, FaArrowLeft } from "react-icons/fa";
 import AppointmentStatus, { AppointmentDetails, AppointmentStatusType } from "./appointmentStatus";
 import { VISIT_ID, VISIT_TYPES } from "./cVetAppointmentBooking";
-import DoctorCard from "./doctorCard";
-import FullScreenLoader from "./fullScreenLoader";
-import {ErrorAlert} from "@/utils/commonTypes";
-import {removeItemById} from "@/utils/common";
-import {ErrorBanner} from "../common/ErrorBanner";
+import { WorkflowCard } from "@/components/common/WorkflowCard";
+import { LoadingState } from "@/components/common/LoadingState";
+import { ErrorAlert } from "@/utils/commonTypes";
+import { removeItemById } from "@/utils/common";
+import { AlertBanner } from "@/components/common/AlertBanner";
 import { EmptyAppointments } from "../common/EmptyStates";
 
 interface C_MyAppointmentsProps {
@@ -140,18 +140,24 @@ export default function C_MyAppointments({ onPageTypeChange }: C_MyAppointmentsP
         }
     }
 
+    if (loading) {
+        return <LoadingState fullScreen message="Loading appointments..." />;
+    }
+
     return (
         <>
             {/* Show all visible error banners */}
             {errors.map(e => (
-                <ErrorBanner
-                    key={e.id}
-                    title={e.title}
-                    message={e.message}
-                    visible={true}
-                    onDismiss={() => handleDismiss(e.id)}
-                />
+                <div key={e.id} className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+                    <AlertBanner
+                        type="danger"
+                        title={e.title}
+                        message={e.message}
+                        onDismiss={() => handleDismiss(e.id)}
+                    />
+                </div>
             ))}
+            
             {!selectedAppointment && 
             <div className="min-h-screen bg-purple-50 px-10 py-6">
                 {/* Tabs and search section */}
@@ -205,17 +211,36 @@ export default function C_MyAppointments({ onPageTypeChange }: C_MyAppointmentsP
                 </div>
 
                 {appointmentsToShow.length === 0 && <EmptyAppointments />}
+                
                 {/* Grid of cards */}
-                <div className="grid grid-cols-3 gap-x-6 gap-y-8">
-                    {appointmentsToShow.map(app => (
-                    <DoctorCard key={app.id} appointmentDetails={app} onViewDetailsClick={() => fetchAndSetSelectedAppointmentDetails(app)}  />
-                    ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8">
+                    {appointmentsToShow.map(app => {
+                        const normalizedStatus = app.status === 'completed' ? 'success' 
+                                               : app.status === 'cancelled' ? 'danger' 
+                                               : 'info';
+                                               
+                        return (
+                            <WorkflowCard 
+                                key={app.id} 
+                                title={`Dr. ${app.vetName}`}
+                                subtitle={`${app.visitType || app.visit_purpose || "Visit"} • ${app.date} ${app.time}`}
+                                status={normalizedStatus}
+                                assignedTo={app.clinicName || app.location}
+                                actionLabel="View Details"
+                                onAction={() => fetchAndSetSelectedAppointmentDetails(app)}
+                            />
+                        );
+                    })}
                 </div>
             </div>
             }
-            {selectedAppointment && <AppointmentStatus appointmentDetails={selectedAppointment} onPageTypeChange={onPageTypeChange} makeSelectedAppointmentEmpty={() => setSelectedAppointment(null)}/>}
-            <FullScreenLoader loading={loading}/>
+            {selectedAppointment && (
+                <AppointmentStatus 
+                    appointmentDetails={selectedAppointment} 
+                    onPageTypeChange={onPageTypeChange} 
+                    makeSelectedAppointmentEmpty={() => setSelectedAppointment(null)}
+                />
+            )}
         </>
-        
     );
 }

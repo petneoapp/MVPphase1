@@ -43,6 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleUnauthorized = useCallback(
     (targetFlow?: AuthFlow) => {
       const resolvedFlow = targetFlow ?? flow ?? "customer";
+      console.error(`[AuthContext] handleUnauthorized called for flow: ${resolvedFlow}, current path: ${typeof window !== "undefined" ? window.location.pathname : "SSR"}`);
       // Guard: don't redirect if already on login
       if (typeof window !== "undefined" && window.location.pathname === "/login") {
         return;

@@ -2,7 +2,7 @@ import { api } from "@/utils/api";
 import React, { useEffect, useRef, useState } from "react";
 import { FaHome, FaPlus } from "react-icons/fa";
 import { FaCheckSquare, FaRegSquare } from "react-icons/fa";
-import FullScreenLoader from "./fullScreenLoader";
+import { LoadingState } from "@/components/common/LoadingState";
 import PopupModel from "./popupModel";
 import ConfirmationPopup from "./ConfirmationPopup";
 import {MapSelector} from "./MapSelector";
@@ -327,7 +327,7 @@ export default function LocationSelector({onSelectedAddressChange, selectedAddre
               >
                   <FaPlus className="text-white text-lg" />
               </button>
-              <FullScreenLoader loading={loading}/>
+                {loading && <LoadingState fullScreen message="Loading location..." />}
               <PopupModel open={isPopupOpen} onCancel={handlePopupCancel} onPrimary={handlePrimaryAction} primaryLabel={addressFormDetails?.id ? "Save": "Add"}>
                   <form className="w-full max-w-lg bg-white rounded-xl px-8 py-10 shadow-lg">
                       <h2 className="text-base font-bold mb-8 text-center">Enter Address Details</h2>

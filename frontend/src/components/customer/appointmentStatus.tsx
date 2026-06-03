@@ -5,7 +5,7 @@ import React, {useEffect, useState} from 'react';
 import { FaCheckCircle, FaCalendarAlt, FaMapMarkerAlt, FaDog, FaCut } from 'react-icons/fa';
 import { FcCancel } from 'react-icons/fc';
 import { LiaPawSolid } from "react-icons/lia";
-import FullScreenLoader from './fullScreenLoader';
+import { LoadingState } from "@/components/common/LoadingState";
 import PopupModel from "./popupModel";
 import SlotPicker, {DaySlots} from "./slotPicker";
 import {
@@ -16,7 +16,9 @@ import {
 } from "./cVetAppointmentBooking";
 import {isAppointmentInFuture, removeItemById} from "@/utils/common";
 import {ErrorAlert} from "@/utils/commonTypes";
-import {ErrorBanner} from "../common/ErrorBanner";
+import { AlertBanner } from "@/components/common/AlertBanner";
+import { StatusBadge } from "@/components/common/StatusBadge";
+import { TimelineView, TimelineEvent } from "@/components/common/TimelineView";
 
 export type AppointmentStatusType = 'booked' | 'cancelled' | 'completed';
 export interface AppointmentDetails {
@@ -230,81 +232,64 @@ export default function AppointmentStatus({appointmentDetails, onPageTypeChange,
     makeSelectedAppointmentEmpty?.();
   }
 
+  if (loading) {
+      return <LoadingState fullScreen message="Processing..." />;
+  }
+
+  const timelineEvents: TimelineEvent[] = [
+      {
+          id: "1",
+          title: appointmentDetails.visitType || "Visit",
+          description: `Service: ${appointmentDetails.service || 'General'}`,
+          timestamp: `${formatDate(appointmentDate)} - ${appointmentTime}`,
+          actor: {
+              name: `Dr. ${appointmentDetails.vetName || ""}`,
+              avatarUrl: appointmentDetails.vetProfileUrl,
+          },
+          status: appointmentStatus === 'completed' ? 'success' : appointmentStatus === 'cancelled' ? 'danger' : 'info'
+      },
+      {
+          id: "2",
+          title: "Location Details",
+          description: appointmentDetails.location || appointmentDetails.clinicName,
+          timestamp: "",
+          status: "info"
+      }
+  ];
+
   return (
       <>
           {/* Show all visible error banners */}
           {errors.map(e => (
-              <ErrorBanner
-                  key={e.id}
-                  title={e.title}
-                  message={e.message}
-                  visible={true}
-                  onDismiss={() => handleDismiss(e.id)}
-              />
+              <div key={e.id} className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+                  <AlertBanner
+                      type="danger"
+                      title={e.title}
+                      message={e.message}
+                      onDismiss={() => handleDismiss(e.id)}
+                  />
+              </div>
           ))}
-          <div className="flex flex-col items-center min-h-screen justify-center bg-[#E8ECFC]">
-              <div className="w-full max-w-md py-8 px-4 flex flex-col items-center">
-                  {appointmentStatus === 'booked' && (
-                      <>
-                          <FaCheckCircle className="text-pink-400 text-6xl mb-4" />
-                          <h2 className="font-semibold text-lg mb-2">Appointment Booked.</h2>
-                          <span className="font-medium mb-4 text-center">
-                              <div>{appointmentDetails.vetName ?
-                                  appointmentDetails.vetName.includes("Dr.") ? appointmentDetails.vetName : "Dr. " + appointmentDetails.vetName : ""}</div>
-                              {appointmentDetails.clinicName && <div className="text-sm text-gray-600 font-normal">{appointmentDetails.clinicName}</div>}
-                          </span>
-                      </>
+          <div className="flex flex-col items-center min-h-screen justify-center bg-[#f9fafb]">
+              <div className="w-full max-w-lg py-8 px-4 flex flex-col items-center bg-white shadow rounded-lg border border-gray-200 my-10">
+                  <div className="mb-4">
+                      {appointmentStatus === 'booked' && (
+                          <StatusBadge status="success" label="Appointment Booked" />
+                      )}
+                      {appointmentStatus === 'cancelled' && (
+                          <StatusBadge status="danger" label="Appointment Cancelled" />
+                      )}
+                      {appointmentStatus === 'completed' && (
+                          <StatusBadge status="info" label="Appointment Completed" />
+                      )}
+                  </div>
+                  
+                  {appointmentStatus === "cancelled" && appointmentDetails.cancellationReason && (
+                      <span className="mb-4 text-sm text-gray-700">Reason: {appointmentDetails.cancellationReason}</span>
                   )}
-                  { appointmentStatus === "cancelled" && (
-                      <>
-                          <FcCancel className="mb-4" size={100} />
-                          <h2 className="font-semibold text-lg mb-2">Appointment Cancelled</h2>
-                          {appointmentDetails.cancellationReason && <span className="mb-4 text-sm text-gray-700">Reason: {appointmentDetails.cancellationReason}</span>}
-                      </>
-                  )}
-                  {appointmentStatus === 'completed' && (
-                      <>
-                          <FaCheckCircle className="text-pink-400 text-6xl mb-4" />
-                          <h2 className="font-semibold text-lg mb-2">Appointment Completed.</h2>
-                          <span className="font-medium mb-4 text-center">
-                              <div>{appointmentDetails.vetName ?
-                                  appointmentDetails.vetName.includes("Dr.") ? appointmentDetails.vetName : "Dr. " + appointmentDetails.vetName : ""}</div>
-                              {appointmentDetails.clinicName && <div className="text-sm text-gray-600 font-normal">{appointmentDetails.clinicName}</div>}
-                          </span>
-                      </>
-                  )}
-
-                  <div className="p-4 w-full mb-6">
-                      <div className="flex items-center border-2 border-[#B7B7B7] py-3 rounded-t-lg bg-white">
-                          <div className="px-2">
-                              <LiaPawSolid className="mr-2 text-gray-500" size={20} />
-                          </div>
-                          <span className="font-medium">Pet name: {appointmentDetails.pet?.name}</span>
-                      </div>
-                      <div className="flex items-center border-x-2 border-b-2 border-[#B7B7B7] py-3 bg-white">
-                          <div className="px-2">
-                              <FaDog className="mr-2 text-gray-500" size={20} />
-                          </div>
-                          <span className="font-medium">{appointmentDetails.visitType}</span>
-                      </div>
-                      <div className="flex items-center border-x-2 border-b-2 border-[#B7B7B7] py-3 bg-white">
-                          <div className="px-2">
-                              <FaCut className="mr-2 text-gray-500" size={20} />
-                          </div>
-                          <span className="font-medium">{appointmentDetails.service}</span>
-                      </div>
-                      <div className="flex items-center border-x-2 border-b-2 border-[#B7B7B7] py-3 bg-white">
-                          <div className="px-2">
-                              <FaCalendarAlt className="mr-2 text-gray-500" size={20} />
-                          </div>
-                          <span className="font-medium">{formatDate(appointmentDate)} - {appointmentTime}</span>
-                      </div>
-                      <div className="flex items-center border-x-2 border-b-2 border-[#B7B7B7] py-3 rounded-b-lg bg-white">
-                          <div className="px-2">
-                              <FaMapMarkerAlt className="mr-2 text-gray-500" size={20} />
-                          </div>
-                          <span>{appointmentDetails.location}</span>
-                      </div>
+                  
+                  <div className="w-full mb-6 text-left">
+                      <TimelineView events={timelineEvents} />
                   </div>
 
                   {appointmentStatus === 'booked' && (
@@ -370,17 +355,17 @@ export default function AppointmentStatus({appointmentDetails, onPageTypeChange,
                   </div>
                   {/* Show all visible error banners */}
                   {popupErrors.map(e => (
-                      <ErrorBanner
-                          key={e.id}
-                          title={e.title}
-                          message={e.message}
-                          visible={true}
-                          onDismiss={() => handlePopupErrorsDismiss(e.id)}
-                      />
+                      <div key={e.id} className="mb-4">
+                          <AlertBanner
+                              type="danger"
+                              title={e.title}
+                              message={e.message}
+                              onDismiss={() => handlePopupErrorsDismiss(e.id)}
+                          />
+                      </div>
                   ))}
                   <SlotPicker vetAvailability={rescheduleAvailability} onChange={handleSlotPickerValueChange}/>
               </PopupModel>
-              <FullScreenLoader loading={loading}/>
           </div>
       </>
 

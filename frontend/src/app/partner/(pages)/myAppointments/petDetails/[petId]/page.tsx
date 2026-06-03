@@ -8,7 +8,7 @@ import {FaCalendarAlt, FaClock, FaFileContract, FaPhone, FaPlus, FaSyringe} from
 import Image from "next/image";
 import {LuBone, LuDog} from "react-icons/lu";
 import {api} from "@/utils/api";
-import FullScreenLoader from "@/components/customer/fullScreenLoader";
+import { LoadingState } from "@/components/common/LoadingState";
 import {
     ErrorAlert,
     PartnerPetAppointmentDetails,
@@ -19,7 +19,7 @@ import {
 import PopupModel from "@/components/customer/popupModel";
 import {AlertCircle} from "lucide-react";
 import {removeItemById} from "@/utils/common";
-import {ErrorBanner} from "@/components/common/ErrorBanner";
+import { AlertBanner } from "@/components/common/AlertBanner";
 
 export default function PetDetailsPage() {
     const params = useParams();
@@ -265,13 +265,14 @@ export default function PetDetailsPage() {
         <>
             {/* Show all visible error banners */}
             {errors.map(e => (
-                <ErrorBanner
-                    key={e.id}
-                    title={e.title}
-                    message={e.message}
-                    visible={true}
-                    onDismiss={() => handleDismiss(e.id)}
-                />
+                <div key={e.id} className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+                    <AlertBanner
+                        type="danger"
+                        title={e.title}
+                        message={e.message}
+                        onDismiss={() => handleDismiss(e.id)}
+                    />
+                </div>
             ))}
             <div className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 p-6">
                 <div className="max-w-2xl mx-auto">
@@ -589,7 +590,7 @@ export default function PetDetailsPage() {
                     </div>
                 </div>
             </div>
-            <FullScreenLoader loading={loading}/>
+            {loading && <LoadingState fullScreen message="Loading..." />}
         </>
     );
 }

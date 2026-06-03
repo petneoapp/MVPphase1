@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import DoctorCard from "@/components/customer/doctorCard";
+import { WorkflowCard } from "@/components/common/WorkflowCard";
 import { AppointmentDetails } from "@/components/customer/appointmentStatus";
 import { SkeletonGrid } from "@/components/common/SkeletonLoader";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -25,10 +25,24 @@ export default function RecentAppointments({
           <SkeletonGrid count={3} />
         ) : appointments.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {appointments.map((app) => (
-                <DoctorCard key={app.id} appointmentDetails={app} />
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[var(--spacing-lg)]">
+              {appointments.map((app) => {
+                const normalizedStatus = app.status === 'completed' ? 'success' 
+                                       : app.status === 'cancelled' ? 'danger' 
+                                       : 'info';
+                
+                return (
+                  <WorkflowCard 
+                    key={app.id} 
+                    title={`Dr. ${app.vetName}`}
+                    subtitle={`${app.visitType || app.visit_purpose || "Visit"} • ${app.date} ${app.time}`}
+                    status={normalizedStatus}
+                    assignedTo={app.clinicName || app.location}
+                    actionLabel="View Details"
+                    onAction={onViewAll} // Customer will use onViewAll to navigate for now
+                  />
+                );
+              })}
             </div>
             <div className="flex justify-center mt-6">
               <button

@@ -4,12 +4,12 @@ import { PageType } from "@/app/customer/dashboard/constants";
 import { api } from "@/utils/api";
 import { form } from "framer-motion/client";
 import React, { useEffect, useRef, useState } from "react";
-import FullScreenLoader from "./fullScreenLoader";
+import { LoadingState } from "@/components/common/LoadingState";
 import { FaCamera, FaPen } from "react-icons/fa";
 import { spec } from "node:test/reporters";
 import ConfirmationPopup from "./ConfirmationPopup";
 import {ErrorAlert} from "@/utils/commonTypes";
-import {ErrorBanner} from "../common/ErrorBanner";
+import { AlertBanner } from "@/components/common/AlertBanner";
 import {removeItemById} from "@/utils/common";
 
 interface C_PetInfoProps {
@@ -393,13 +393,14 @@ export default function C_PetInfo({ petId, goToMyPets }: C_PetInfoProps) {
         <>
             {/* Show all visible error banners */}
             {errors.map(e => (
-                <ErrorBanner
-                    key={e.id}
-                    title={e.title}
-                    message={e.message}
-                    visible={true}
-                    onDismiss={() => handleDismiss(e.id)}
-                />
+                <div key={e.id} className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+                    <AlertBanner
+                        type="danger"
+                        title={e.title}
+                        message={e.message}
+                        onDismiss={() => handleDismiss(e.id)}
+                    />
+                </div>
             ))}
             <div className="bg-[#eaeaff] min-h-screen flex flex-col items-center pt-8">
                 <form className="w-full max-w-sm bg-transparent rounded-lg p-4">
@@ -587,7 +588,7 @@ export default function C_PetInfo({ petId, goToMyPets }: C_PetInfoProps) {
                     cancelText="No"
                     confirmButtonColor="bg-pink-500 hover:bg-pink-600"
                 />
-                <FullScreenLoader loading={loading}/>
+                {loading && <LoadingState fullScreen message="Processing..." />}
             </div>
         </>
 

@@ -1,88 +1,28 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { FiSearch, FiMapPin, FiFilter } from "react-icons/fi";
-import { AiFillStar } from "react-icons/ai";
+import { FiSearch, FiFilter } from "react-icons/fi";
 import { FaArrowLeft } from "react-icons/fa";
 import { Vet } from "@/app/customer/dashboard/page";
 import { api } from "@/utils/api";
-import FullScreenLoader from "./fullScreenLoader";
-import {VISIT_ID} from "./cVetAppointmentBooking";
+import { LoadingState } from "@/components/common/LoadingState";
+import { VISIT_ID } from "./cVetAppointmentBooking";
 import PopupModel from "./popupModel";
-import LocationSelector, {Home_Visit_Address} from "./locationSelector";
+import LocationSelector, { Home_Visit_Address } from "./locationSelector";
 import DistanceSlider from "./DistanceSlider";
-import {removeItemById} from "@/utils/common";
+import { removeItemById } from "@/utils/common";
 import { EmptyDoctors } from "../common/EmptyStates";
-import {ErrorAlert} from "@/utils/commonTypes";
-import {ErrorBanner} from "../common/ErrorBanner";
+import { ErrorAlert } from "@/utils/commonTypes";
+import { AlertBanner } from "@/components/common/AlertBanner";
+import { WorkflowCard } from "@/components/common/WorkflowCard";
+import { PageType } from "@/app/customer/dashboard/constants";
 
 
 interface C_VetDetailsProps {
     selectedServiceVisitType: VISIT_ID | null;
     selectedServiceId: string | null;
     onVetSelection: (vet: Vet) => void;
-}
-
-interface C_VetCardProp {
-    vet : Vet;
-    onBookAppointmentClick: () => void;
-}
-
-function C_VetCard({vet, onBookAppointmentClick}: C_VetCardProp) {
-    return (
-        <>
-            <div
-                key={vet.id}
-                className="bg-white rounded-lg shadow-sm p-6 border border-gray-200 flex flex-col"
-            >
-                <div className="flex items-center gap-4 mb-4">
-                <img
-                    src={vet.image}
-                    alt={vet.name}
-                    className="w-16 h-16 rounded-full object-cover border border-gray-300"
-                />
-                <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 text-lg">{vet.name}</h3>
-                    <p className="text-gray-500 text-sm">{vet.experience}</p>
-                    <div className="flex items-center text-yellow-500 text-sm mt-1">
-                    <AiFillStar className="mr-1" />
-                    <span className="font-semibold">{vet.rating.toFixed(1)}</span>
-                    <span className="text-gray-400 ml-2">({vet.ratingCount} Ratings)</span>
-                    </div>
-                    {vet.availableToday && (
-                    <span className="inline-block mt-2 text-pink-600 text-xs font-semibold bg-pink-100 rounded px-2 py-0.5">
-                        Available Today
-                    </span>
-                    )}
-                </div>
-                </div>
-
-                <div className="flex items-center text-gray-400 text-sm mb-4">
-                <FiMapPin className="mr-1" />
-                <span>{vet?.clinic?.address}</span>
-                </div>
-
-                <div className="flex flex-wrap gap-2 mb-6">
-                {vet.tags.map((tag, i) => (
-                    <span
-                    key={i}
-                    className="text-pink-600 text-xs font-semibold bg-pink-100 rounded px-3 py-1"
-                    >
-                    {tag.name}
-                    </span>
-                ))}
-                </div>
-
-                <button
-                type="button"
-                className="mt-auto bg-pink-600 hover:bg-pink-700 focus:ring-4 focus:ring-pink-300 text-white font-semibold text-sm rounded-md py-3 transition"
-                onClick={onBookAppointmentClick}
-                >
-                Book Appointment
-                </button>
-            </div>
-        </>
-    );
+    onPageTypeChange: (pageType: PageType) => void;
 }
 
 const defaultNearByRadius = 10;
@@ -136,7 +76,7 @@ export function useBrowserCoordinates() {
   return coordinates;
 }
 
-export default function C_VetDetails({ selectedServiceVisitType, selectedServiceId, onVetSelection }: C_VetDetailsProps) {
+export default function C_VetDetails({ selectedServiceVisitType, selectedServiceId, onVetSelection, onPageTypeChange }: C_VetDetailsProps) {
 
     const coordinates = useBrowserCoordinates();
     const [addressCoordinates, setAddressCoordinates] = useState<Coordinates>();
@@ -150,6 +90,7 @@ export default function C_VetDetails({ selectedServiceVisitType, selectedService
     const [vets, setVets] = useState<Vet[]>([]);
     const hasFetched = useRef(false);
     const [loading, setLoading] = useState<boolean>(false);
+    
     useEffect(() => {
         const latitude = addressCoordinates?.latitude || coordinates.latitude || 17.385;
         const longitude = addressCoordinates?.longitude || coordinates.longitude || 78.4867 ;
@@ -252,6 +193,7 @@ export default function C_VetDetails({ selectedServiceVisitType, selectedService
         setNearbyRadius(actualNearByRadius);
         setIsPopupOpen(false);
     };
+    
     const handlePrimaryAction =  () => {
         setLocalSelectedAddress(selectedAddress);
         setActualNearByRadius(nearbyRadius);
@@ -262,18 +204,24 @@ export default function C_VetDetails({ selectedServiceVisitType, selectedService
         setIsPopupOpen(false);
     };
 
+    if (loading) {
+        return <LoadingState fullScreen message="Loading providers..." />;
+    }
+
     return (
         <>
             {/* Show all visible error banners */}
             {errors.map(e => (
-                <ErrorBanner
-                    key={e.id}
-                    title={e.title}
-                    message={e.message}
-                    visible={true}
-                    onDismiss={() => handleDismiss(e.id)}
-                />
+                <div key={e.id} className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+                    <AlertBanner
+                        type="danger"
+                        title={e.title}
+                        message={e.message}
+                        onDismiss={() => handleDismiss(e.id)}
+                    />
+                </div>
             ))}
+            
             <div className="bg-gray-50 min-h-screen p-6">
                 {/* Header with count, search, and filter */}
                 <div className="flex flex-wrap items-center mb-8 gap-4">
@@ -325,14 +273,27 @@ export default function C_VetDetails({ selectedServiceVisitType, selectedService
                 </PopupModel>
 
                 {vets.length === 0 && <EmptyDoctors />}
+                
                 {/* Vet cards grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-20 gap-y-10 px-10">
-                    {vets.map((vet) => (
-                    <C_VetCard key={vet.id} vet={vet} onBookAppointmentClick={handleBookAppointmentClick(vet)}/>
-                    ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[var(--spacing-lg)] px-10">
+                    {vets.map((vet) => {
+                        const vetSubtitle = `${vet.experience} • ★ ${vet.rating.toFixed(1)} (${vet.ratingCount})`;
+                        const vetStatus = vet.availableToday ? 'success' : 'info';
+                        
+                        return (
+                            <WorkflowCard 
+                                key={vet.id} 
+                                title={vet.name}
+                                subtitle={vetSubtitle}
+                                status={vetStatus}
+                                assignedTo={vet.clinic?.address || "Mobile Service"}
+                                actionLabel="Book Appointment"
+                                onAction={handleBookAppointmentClick(vet)}
+                            />
+                        );
+                    })}
                 </div>
             </div>
-            <FullScreenLoader loading={loading}/>
         </>
     );
 }

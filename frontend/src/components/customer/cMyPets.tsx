@@ -4,10 +4,10 @@ import {Pet} from "@/app/customer/dashboard/page";
 import {api} from "@/utils/api";
 import React, {useEffect, useRef, useState} from "react";
 import {FaPlus} from "react-icons/fa";
-import FullScreenLoader from "./fullScreenLoader";
+import { LoadingState } from "@/components/common/LoadingState";
 import {ErrorAlert} from "@/utils/commonTypes";
 import {removeItemById} from "@/utils/common";
-import {ErrorBanner} from "../common/ErrorBanner";
+import { AlertBanner } from "@/components/common/AlertBanner";
 import { EmptyPets } from "../common/EmptyStates";
 
 interface C_MyPetsProps {
@@ -57,13 +57,14 @@ export default function C_MyPets({ onViewPetDetails, onViewPetHistory }: C_MyPet
         <>
             {/* Show all visible error banners */}
             {errors.map(e => (
-                <ErrorBanner
-                    key={e.id}
-                    title={e.title}
-                    message={e.message}
-                    visible={true}
-                    onDismiss={() => handleDismiss(e.id)}
-                />
+                <div key={e.id} className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+                    <AlertBanner
+                        type="danger"
+                        title={e.title}
+                        message={e.message}
+                        onDismiss={() => handleDismiss(e.id)}
+                    />
+                </div>
             ))}
             <div className="min-h-screen bg-[#eaeaff] flex flex-col items-center py-6">
                 <h2 className="font-medium text-center mb-6 text-grey-100">My Pets</h2>
@@ -97,7 +98,7 @@ export default function C_MyPets({ onViewPetDetails, onViewPetHistory }: C_MyPet
                     <FaPlus />
                     Add Pets
                 </button>
-                <FullScreenLoader loading={loading}/>
+                {loading && <LoadingState fullScreen message="Loading..." />}
             </div>
         </>
 

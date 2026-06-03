@@ -3,12 +3,12 @@
 import React, {useEffect, useRef, useState} from "react";
 import {api, clearAuth} from "@/utils/api";
 import {FaCamera, FaPen} from "react-icons/fa";
-import FullScreenLoader from "./fullScreenLoader";
+import { LoadingState } from "@/components/common/LoadingState";
 import ConfirmationPopup from "./ConfirmationPopup";
 import router from "next/router";
 import {ErrorAlert} from "@/utils/commonTypes";
 import {removeItemById} from "@/utils/common";
-import {ErrorBanner} from "../common/ErrorBanner";
+import { AlertBanner } from "@/components/common/AlertBanner";
 
 interface UserBio {
     id?: number;
@@ -180,13 +180,14 @@ export default function C_MyBio({ onProfileUpdate }: C_MyBioProps) {
         <>
             {/* Show all visible error banners */}
             {errors.map(e => (
-                <ErrorBanner
-                    key={e.id}
-                    title={e.title}
-                    message={e.message}
-                    visible={true}
-                    onDismiss={() => handleDismiss(e.id)}
-                />
+                <div key={e.id} className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+                    <AlertBanner
+                        type="danger"
+                        title={e.title}
+                        message={e.message}
+                        onDismiss={() => handleDismiss(e.id)}
+                    />
+                </div>
             ))}
             <div className="bg-[#eaeaff] min-h-screen flex flex-col items-center pt-8">
                 <form className="w-full max-w-md bg-transparent rounded-lg p-4">
@@ -297,7 +298,7 @@ export default function C_MyBio({ onProfileUpdate }: C_MyBioProps) {
                     }
                 </form>
 
-                <FullScreenLoader loading={loading}/>
+                {loading && <LoadingState fullScreen message="Loading..." />}
             </div>
             {/* Confirmation Popup */}
             <ConfirmationPopup

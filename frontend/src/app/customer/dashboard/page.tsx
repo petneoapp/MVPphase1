@@ -21,7 +21,7 @@ import SimpleOverlay from "@/components/customer/simpleOverlay";
 import C_VetProfile from "@/components/customer/cVetProfile";
 import C_VetAppointmentBooking, {VISIT_ID} from "@/components/customer/cVetAppointmentBooking";
 import {api, clearAuth} from "@/utils/api";
-import FullScreenLoader from "@/components/customer/fullScreenLoader";
+import { LoadingState } from "@/components/common/LoadingState";
 import C_MyPets from "@/components/customer/cMyPets";
 import {Menu, X} from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -319,14 +319,14 @@ function CustomerDashboardContent() {
         {pageType === PageType.MY_BIO && <C_MyBio onProfileUpdate={refetch} />}
       </main>
 
-      <FullScreenLoader loading={loading} />
+      {loading && <LoadingState fullScreen message="Loading dashboard..." />}
     </div>
   );
 }
 
 export default function CustomerDashboard() {
     return (
-        <Suspense fallback={<FullScreenLoader loading={true} />}>
+        <Suspense fallback={<LoadingState fullScreen />}>
             <CustomerDashboardContent />
         </Suspense>
     );

@@ -11,7 +11,7 @@ import {
 import {Menu, X} from "lucide-react";
 import SimpleOverlay from "@/components/customer/simpleOverlay";
 import React, {useEffect, useRef, useState, useCallback} from "react";
-import FullScreenLoader from "@/components/customer/fullScreenLoader";
+import { LoadingState } from "@/components/common/LoadingState";
 import {api, clearAuth} from "@/utils/api";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
@@ -20,7 +20,7 @@ import {IoMdNotifications} from "react-icons/io";
 import {Poppins} from "next/font/google";
 import {ErrorAlert, PartnerAppointment} from "@/utils/commonTypes";
 import {removeItemById} from "@/utils/common";
-import {ErrorBanner} from "@/components/common/ErrorBanner";
+import { AlertBanner } from "@/components/common/AlertBanner";
 
 const poppins = Poppins({
     subsets: ["latin"],
@@ -199,17 +199,18 @@ export default function PartnerLayout({ children }: { children: React.ReactNode;
             <main className={`${isOpen ? "blur-sm pointer-events-none" : ""} overflow-auto`}>
                 {/* Show all visible error banners */}
                 {errors.map(e => (
-                    <ErrorBanner
-                        key={e.id}
-                        title={e.title}
-                        message={e.message}
-                        visible={true}
-                        onDismiss={() => handleDismiss(e.id)}
-                    />
+                    <div key={e.id} className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+                        <AlertBanner
+                            type="danger"
+                            title={e.title}
+                            message={e.message}
+                            onDismiss={() => handleDismiss(e.id)}
+                        />
+                    </div>
                 ))}
                 {children}
             </main>
-            <FullScreenLoader loading={loading}/>
+            {loading && <LoadingState fullScreen message="Loading..." />}
         </div>
     );
 }
