@@ -80,7 +80,8 @@ export default function PartnerManageTimeSlotsPage(): React.JSX.Element {
             
             // Populate all 7 days, merge existing ones
             const initialList: AvailabilityRow[] = Array.from({ length: 7 }, (_, index) => {
-                const found = existingAvs.find((a: any) => a.day_of_week === index);
+                const matches = existingAvs.filter((a: any) => a.day_of_week === index);
+                const found = matches.length > 0 ? matches[matches.length - 1] : undefined;
                 if (found) {
                     return {
                         id: found.id,
