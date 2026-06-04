@@ -61,7 +61,7 @@ export const VISIT_TYPES:VISIT_TYPE[] = [{id: VISIT_ID.CLINIC_VISIT, displayName
 export const defaultNumberOfDays = 7;
 export const defaultTimeSlotInMin: number = 30;
 
-export function transformAvailability(data: any[]): DaySlots[] {
+export function transformAvailability(data: any[], daysCount: number = 7): DaySlots[] {
   // Helper: convert "HH:mm:ss" -> "hh:mm AM/PM"
   const formatTime = (time: string): string => {
     const [hourStr, minuteStr] = time.split(":");
@@ -75,6 +75,18 @@ export function transformAvailability(data: any[]): DaySlots[] {
   // Group by date
   const grouped: Record<string, TimeSlot[]> = {};
 
+  // Pre-fill next N days
+  const today = new Date();
+  for (let i = 0; i < daysCount; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + i);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const dateStr = `${year}-${month}-${day}`;
+    grouped[dateStr] = [];
+  }
+
   data.forEach((slot) => {
     if (!grouped[slot.date]) {
       grouped[slot.date] = [];
@@ -85,8 +97,8 @@ export function transformAvailability(data: any[]): DaySlots[] {
     });
   });
 
-  // Convert to DaySlots[]
-  return Object.keys(grouped).map((date) => ({
+  // Convert to DaySlots[] and sort dates
+  return Object.keys(grouped).sort().map((date) => ({
     date,
     slots: grouped[date],
   }));
