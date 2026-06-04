@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/network/image_helper.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../../core/widgets/vet_card.dart';
 
 class VetsListPage extends StatefulWidget {
   final String visitType;
@@ -128,7 +129,7 @@ class _VetsListPageState extends State<VetsListPage> {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: AppColors.black),
@@ -148,7 +149,7 @@ class _VetsListPageState extends State<VetsListPage> {
                     hintText: 'Search for near vet or clinic',
                     prefixIcon: const Icon(Icons.search),
                     filled: true,
-                    fillColor: Colors.grey[100],
+                    fillColor: AppColors.borderGrey.withOpacity(0.5),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: BorderSide.none,
@@ -206,7 +207,7 @@ class _VetsListPageState extends State<VetsListPage> {
               ElevatedButton(
                 onPressed: _loadVets,
                 style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryPink),
-                child: const Text('Retry', style: TextStyle(color: Colors.white)),
+                child: const Text('Retry', style: TextStyle(color: AppColors.white)),
               ),
             ],
           ),
@@ -223,7 +224,49 @@ class _VetsListPageState extends State<VetsListPage> {
       itemCount: _vets.length,
       itemBuilder: (context, index) {
         final vet = _vets[index] as Map<String, dynamic>;
-        return _buildVetCard(context, vet);
+        final vetId = vet['vet_id'];
+        final name = vet['name'] as String? ?? 'Vet';
+        final experience = vet['experience']?.toString() ?? '';
+        final profilePicture = vet['profile_picture'] as String?;
+        final availabilityStatus = vet['availability_status'] as String? ?? '';
+        final clinic = vet['clinic'] as Map<String, dynamic>?;
+        final address = clinic?['address'] as String? ?? '';
+        final rating = vet['rating'] as Map<String, dynamic>?;
+        final avgRating = (rating?['average'] as num?)?.toDouble() ?? 0.0;
+        final ratingCount = rating?['count'] as int? ?? 0;
+        final services = (vet['services'] as List<dynamic>?) ?? <dynamic>[];
+
+        return VetCard(
+          id: vetId?.toString() ?? '',
+          name: name,
+          experience: experience,
+          profilePicture: profilePicture,
+          availabilityStatus: availabilityStatus,
+          address: address,
+          avgRating: avgRating,
+          ratingCount: ratingCount,
+          services: services,
+          isVideo: false,
+          onTap: () {
+            final id = vetId?.toString() ?? '';
+            if (id.isEmpty || id == 'null') {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Vet id missing, cannot book')),
+              );
+              return;
+            }
+            context.push(
+              '/booking?vet_id=$id',
+              extra: {
+                'vet_name': name,
+                'vet_profile': profilePicture,
+                'clinic': clinic,
+                'services': services,
+                'visit_types': vet['visit_types'],
+              },
+            );
+          },
+        );
       },
     );
   }
@@ -232,7 +275,7 @@ class _VetsListPageState extends State<VetsListPage> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.grey[200],
+        color: AppColors.borderGrey.withOpacity(0.5),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -243,168 +286,6 @@ class _VetsListPageState extends State<VetsListPage> {
           Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
-    );
-  }
-
-  Widget _buildVetCard(BuildContext context, Map<String, dynamic> vet) {
-    final vetId = vet['vet_id'];
-    final name = vet['name'] as String? ?? 'Vet';
-    final experience = vet['experience'];
-    final profilePicture = vet['profile_picture'] as String?;
-    final availabilityStatus = vet['availability_status'] as String? ?? '';
-    final clinic = vet['clinic'] as Map<String, dynamic>?;
-    final address = clinic?['address'] as String? ?? '';
-    final rating = vet['rating'] as Map<String, dynamic>?;
-    final avgRating = (rating?['average'] as num?)?.toDouble() ?? 0.0;
-    final ratingCount = rating?['count'] as int? ?? 0;
-    final services = (vet['services'] as List<dynamic>?) ?? <dynamic>[];
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey[300]!),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: const Color(0xFFEDEFFB),
-                backgroundImage: (profilePicture != null && profilePicture.isNotEmpty)
-                    ? NetworkImage(ImageHelper.getSafeImageUrl(profilePicture) ?? profilePicture)
-                    : const AssetImage('assets/profile.png') as ImageProvider,
-                onBackgroundImageError: (exception, stackTrace) {}, // prevents crash on invalid URL
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name,
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                    if (experience != null)
-                      Text(
-                        '$experience years Exp',
-                        style: const TextStyle(color: AppColors.grey, fontSize: 14),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                    Row(
-                      children: [
-                        const Icon(Icons.star, color: Colors.amber, size: 16),
-                        const SizedBox(width: 4),
-                        Text(
-                          avgRating.toStringAsFixed(1),
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Flexible(
-                          child: Text(
-                            ' ($ratingCount Ratings)',
-                            style: const TextStyle(color: AppColors.grey, fontSize: 12),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              if (availabilityStatus.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryPink.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    availabilityStatus,
-                    style: const TextStyle(color: AppColors.primaryPink, fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              const Icon(Icons.location_on, color: AppColors.grey, size: 16),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Text(
-                  address.isNotEmpty ? address : 'Address unavailable',
-                  style: const TextStyle(color: AppColors.grey, fontSize: 12),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ),
-            ],
-          ),
-          if (services.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: services
-                  .map((s) {
-                    final svc = s as Map<String, dynamic>;
-                    return _buildTag(svc['name'] as String? ?? '');
-                  })
-                  .where((w) => true)
-                  .toList(),
-            ),
-          ],
-          const SizedBox(height: 16),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: () {
-                final id = vetId?.toString() ?? '';
-                if (id.isEmpty || id == 'null') {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Vet id missing, cannot book')),
-                  );
-                  return;
-                }
-                context.push(
-                  '/booking?vet_id=$id',
-                  extra: {
-                    'vet_name': name,
-                    'vet_profile': profilePicture,
-                    'clinic': clinic,
-                    'services': services,
-                    'visit_types': vet['visit_types'],
-                  },
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryPink,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Book Appointment', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTag(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.primaryPink.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(label, style: const TextStyle(color: AppColors.primaryPink, fontSize: 10)),
     );
   }
 }

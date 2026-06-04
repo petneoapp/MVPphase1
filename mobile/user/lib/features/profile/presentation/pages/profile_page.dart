@@ -142,6 +142,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       const Text('Settings', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 16),
+                      _SettingItem(icon: Icons.history, label: 'My Activity', onTap: () => context.push('/my-activity')),
                       _SettingItem(icon: Icons.vaccines, label: 'My Pets', onTap: () => context.push('/my-pets')),
                       _SettingItem(icon: Icons.badge, label: 'My Bio', onTap: () => context.push('/update-profile')),
                       _SettingItem(icon: Icons.location_on_outlined, label: 'My Addresses', onTap: () => context.push('/my-addresses')),

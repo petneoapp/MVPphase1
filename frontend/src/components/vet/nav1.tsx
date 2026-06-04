@@ -97,7 +97,8 @@ export default function Nav1(): React.JSX.Element {
         }
 
         // Profile endpoint (uses api.get -> API_BASE is inside utils/api)
-        const profileRaw = await api.get("/vet/myBio");
+        // We try to fetch the vet's bio to show their name
+        const profileRaw = await api.get("/vet/myBio", undefined, "partner");
         if (!mounted) return;
 
         const profileData = unwrap(profileRaw) ?? {};
@@ -113,7 +114,7 @@ export default function Nav1(): React.JSX.Element {
 
         // Today's appointment summary
         try {
-          const summaryRaw = await api.get("/appointments/vetTodaySummary");
+          const summaryRaw = await api.get("/appointments/vetTodaySummary", undefined, "partner");
           const s = unwrap(summaryRaw);
           const possible =
             s?.total ?? s?.count ?? s?.appointments_count ?? s?.total_requests ?? s?.data?.total ?? s?.data?.count ?? null;
@@ -146,7 +147,7 @@ export default function Nav1(): React.JSX.Element {
       const next = !Boolean(vet.emergency);
       const payload = { emergency: next };
       // Use api.put and unwrap the response
-      const resRaw = await api.put("/vet/updateEmergency", payload);
+      const resRaw = await api.put("/vet/updateEmergency", payload, "partner");
       const res = unwrap(resRaw);
       // Try to read new value from response; fallback to requested next
       const newValue = res?.emergency ?? res?.is_emergency ?? next;

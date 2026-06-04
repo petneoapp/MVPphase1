@@ -166,7 +166,7 @@ export default function MyBioPage(): React.JSX.Element {
 
         // Use api wrapper for GET so it handles Authorization + ngrok header (if configured)
         console.log(`[MyBioPage] GET profile endpoint: ${myBioEndpoint}`);
-        const data = (await api.get(myBioEndpoint)) as APIVet;
+        const data = (await api.get(myBioEndpoint, undefined, "partner")) as APIVet;
         if (!mounted) return;
         setProfile(data);
         setForm(toFormModel(data));

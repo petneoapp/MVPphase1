@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/common/ui/Card";
 import { Input } from "@/components/common/ui/Input";
 import { LoadingState } from "@/components/common/LoadingState";
 import { OrderSummaryCard } from "@/components/ecommerce/OrderSummaryCard";
-import { apiClient } from "@/lib/api/client";
+import { api as apiClient } from "@/utils/api";
 
 // Utility hook to load script
 function useScript(src: string) {

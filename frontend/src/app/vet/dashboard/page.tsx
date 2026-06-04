@@ -20,8 +20,8 @@ export default function VetDashboard() {
     setLoading(true);
     try {
       const [appointmentsRes, summaryRes] = await Promise.all([
-        api.get(`/appointments/myAppointments`),
-        api.get(`/appointments/vetTodaySummary`).catch(() => null),
+        api.get(`/appointments/myAppointments`, undefined, "partner"),
+        api.get(`/appointments/vetTodaySummary`, undefined, "partner").catch(() => null),
       ]);
       
       const rawResponse = appointmentsRes || {};

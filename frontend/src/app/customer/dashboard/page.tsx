@@ -295,6 +295,7 @@ function CustomerDashboardContent() {
             onVetSelection={handleVetSelection}
             selectedServiceVisitType={selectedServiceVisitType}
             selectedServiceId={selectedServiceId}
+            onPageTypeChange={handlePageTypeChange}
           />
         )}
         {pageType === PageType.VET_PROFILE && (

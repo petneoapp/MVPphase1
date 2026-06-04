@@ -10,29 +10,10 @@ import { Input } from "@/components/common/ui/Input";
 import { LoadingState } from "@/components/common/LoadingState";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ProductCard } from "@/components/ecommerce/ProductCard";
-import { apiClient } from "@/lib/api/client";
-
-const CATEGORIES = [
-  "All Products",
-  "Everyday Nutrition",
-  "Post-Surgery Recovery",
-  "Anxiety & Calm Care",
-  "Senior Pet Wellness",
-  "Grooming Essentials",
-  "Dental Health"
-];
-
-// Map category strings to backend slugs if necessary
-const categorySlugMap: Record<string, string> = {
-  "Everyday Nutrition": "nutrition",
-  "Post-Surgery Recovery": "recovery",
-  "Anxiety & Calm Care": "anxiety",
-  "Senior Pet Wellness": "senior",
-  "Grooming Essentials": "grooming",
-  "Dental Health": "dental"
-};
+import { api as apiClient } from "@/utils/api";
 
 export default function ShopPage() {
+  const [categories, setCategories] = useState<any[]>([]);
   const [activeCategory, setActiveCategory] = useState("All Products");
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState<any[]>([]);
@@ -45,16 +26,20 @@ export default function ShopPage() {
       try {
         const params: any = { page: 1, limit: 20 };
         
-        if (activeCategory !== "All Products" && categorySlugMap[activeCategory]) {
-          params.category = categorySlugMap[activeCategory];
+        if (activeCategory !== "All Products") {
+          // Find the slug for the active category
+          const cat = categories.find(c => c.name === activeCategory);
+          if (cat) {
+            params.category = cat.slug;
+          }
         }
         
         if (searchQuery.length > 2) {
           params.search = searchQuery;
         }
 
-        const response = await apiClient.get("/shop/products", { params });
-        setProducts(response.data.items || []);
+        const response = await apiClient.get("/shop/products", params);
+        setProducts(response.items || []);
       } catch (error) {
         console.error("Failed to fetch products:", error);
       } finally {
@@ -63,11 +48,26 @@ export default function ShopPage() {
     };
 
     const timer = setTimeout(() => {
-      fetchProducts();
+      if (categories.length > 0 || activeCategory === "All Products") {
+        fetchProducts();
+      }
     }, 300); // Debounce fetch
 
     return () => clearTimeout(timer);
-  }, [activeCategory, searchQuery]);
+  }, [activeCategory, searchQuery, categories]);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await apiClient.get("/shop/categories");
+        setCategories(response || []);
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const fadeIn = {
     initial: { opacity: 0, y: 20 },
@@ -109,17 +109,28 @@ export default function ShopPage() {
 
         {/* Categories (Premium Pill Navigation) */}
         <div className="flex overflow-x-auto hide-scrollbar gap-3 mb-10 pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-          {CATEGORIES.map(category => (
-            <button
-              key={category}
-              onClick={() => setActiveCategory(category)}
+          <button
+              key="All Products"
+              onClick={() => setActiveCategory("All Products")}
               className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-semibold transition-premium flex-shrink-0 border ${
-                activeCategory === category
+                activeCategory === "All Products"
                   ? "bg-[var(--color-primary-600)] text-white border-transparent shadow-sm"
                   : "bg-white text-slate-600 border-[var(--color-border)] hover:border-[var(--color-primary-300)] hover:text-[var(--color-primary-700)] hover:bg-[var(--color-primary-50)]"
               }`}
             >
-              {category}
+              All Products
+          </button>
+          {categories.map(category => (
+            <button
+              key={category.id}
+              onClick={() => setActiveCategory(category.name)}
+              className={`whitespace-nowrap px-5 py-2.5 rounded-full text-sm font-semibold transition-premium flex-shrink-0 border ${
+                activeCategory === category.name
+                  ? "bg-[var(--color-primary-600)] text-white border-transparent shadow-sm"
+                  : "bg-white text-slate-600 border-[var(--color-border)] hover:border-[var(--color-primary-300)] hover:text-[var(--color-primary-700)] hover:bg-[var(--color-primary-50)]"
+              }`}
+            >
+              {category.name}
             </button>
           ))}
         </div>

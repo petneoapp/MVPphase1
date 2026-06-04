@@ -100,7 +100,7 @@ class _VetProfilePageState extends State<VetProfilePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Profile updated successfully'),
-              backgroundColor: Colors.green,
+              backgroundColor: AppColors.successGreen,
             ),
           );
           context.pop(); // Return to settings page
@@ -110,7 +110,7 @@ class _VetProfilePageState extends State<VetProfilePage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(response['message'] ?? 'Failed to update profile'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.errorRed,
             ),
           );
         }
@@ -120,7 +120,7 @@ class _VetProfilePageState extends State<VetProfilePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(e.toString()),
-            backgroundColor: Colors.red,
+            backgroundColor: AppColors.errorRed,
           ),
         );
       }
@@ -213,7 +213,7 @@ class _VetProfilePageState extends State<VetProfilePage> {
                         ),
                         child: const Icon(
                           Icons.camera_alt,
-                          color: Colors.white,
+                          color: AppColors.white,
                           size: 18,
                         ),
                       ),
@@ -231,14 +231,14 @@ class _VetProfilePageState extends State<VetProfilePage> {
                   labelText: 'First Name',
                   prefixIcon: const Icon(Icons.person_outline, color: AppColors.primaryPink),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: AppColors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey[200]!),
+                    borderSide: const BorderSide(color: AppColors.borderGrey),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey[200]!),
+                    borderSide: const BorderSide(color: AppColors.borderGrey),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -262,14 +262,14 @@ class _VetProfilePageState extends State<VetProfilePage> {
                   labelText: 'Last Name',
                   prefixIcon: const Icon(Icons.person_outline, color: AppColors.primaryPink),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: AppColors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey[200]!),
+                    borderSide: const BorderSide(color: AppColors.borderGrey),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey[200]!),
+                    borderSide: const BorderSide(color: AppColors.borderGrey),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -293,14 +293,14 @@ class _VetProfilePageState extends State<VetProfilePage> {
                   labelText: 'Email Address',
                   prefixIcon: const Icon(Icons.mail_outline, color: AppColors.primaryPink),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: AppColors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey[200]!),
+                    borderSide: const BorderSide(color: AppColors.borderGrey),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide(color: Colors.grey[200]!),
+                    borderSide: const BorderSide(color: AppColors.borderGrey),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -332,10 +332,10 @@ class _VetProfilePageState extends State<VetProfilePage> {
                     elevation: 0,
                   ),
                   child: _isSaving
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const CircularProgressIndicator(color: AppColors.white)
                       : const Text(
                           'Save Changes',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(color: AppColors.white, fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                 ),
               ),

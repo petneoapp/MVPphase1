@@ -8,7 +8,7 @@ import { CartItem } from "@/components/ecommerce/CartItem";
 import { OrderSummaryCard } from "@/components/ecommerce/OrderSummaryCard";
 import { LoadingState } from "@/components/common/LoadingState";
 import { EmptyState } from "@/components/common/EmptyState";
-import { apiClient } from "@/lib/api/client";
+import { api as apiClient } from "@/utils/api";
 
 export default function CartPage() {
   const [cart, setCart] = useState<any>(null);
@@ -34,7 +34,7 @@ export default function CartPage() {
   const updateQuantity = async (itemId: number, newQty: number) => {
     if (newQty < 1) return;
     try {
-      await apiClient.put(`/shop/cart/items/${itemId}`, null, { params: { quantity: newQty }});
+      await apiClient.put(`/shop/cart/items/${itemId}?quantity=${newQty}`, null);
       fetchCart();
     } catch (error) {
       console.error("Failed to update quantity:", error);
@@ -60,13 +60,14 @@ export default function CartPage() {
     <div className="min-h-screen pt-24 pb-20 bg-slate-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <h1 className="text-3xl font-bold text-slate-900 tracking-tight mb-8">Your Cart</h1>
-        
+        {isEmpty ? (
           <EmptyState
             title="Your cart is empty"
             description="Looks like you haven't added any wellness products to your cart yet."
             actionLabel="Continue Shopping"
             onAction={() => window.location.href = "/shop"}
           />
+        ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-4">
               {cart.items.map((item: any) => (

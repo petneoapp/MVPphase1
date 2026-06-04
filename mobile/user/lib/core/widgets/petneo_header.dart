@@ -28,7 +28,7 @@ class PetneoHeader extends StatelessWidget {
               Text(
                 'Pet',
                 style: TextStyle(
-                  color: AppColors.primaryBlue,
+                  color: AppColors.info,
                   fontSize: 26,
                   fontWeight: FontWeight.w900,
                   fontStyle: FontStyle.italic,

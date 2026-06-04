@@ -43,7 +43,7 @@ class OnboardingBottomCard extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: AppColors.textDark,
+              color: AppColors.textPrimary,
             ),
           ),
           const SizedBox(height: 12),

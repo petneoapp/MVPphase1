@@ -31,6 +31,17 @@ import '../../features/emergency/presentation/pages/emergency_info_vet_page.dart
 import '../../features/emergency/presentation/pages/emergency_info_clinic_page.dart';
 import '../../features/emergency/presentation/pages/emergency_tracking_page.dart';
 import '../../features/emergency/presentation/pages/get_directions_page.dart';
+import '../../features/shop/presentation/pages/shop_page.dart';
+import '../../features/shop/presentation/pages/cart_page.dart';
+import '../../features/marketplace/presentation/pages/marketplace_page.dart';
+import '../../features/workflows/presentation/pages/workflow_tracking_page.dart';
+import '../../features/grooming/presentation/pages/grooming_page.dart';
+import '../../features/boarding/presentation/pages/boarding_page.dart';
+import '../../features/orders/presentation/pages/orders_page.dart';
+import '../../features/orders/presentation/pages/order_details_page.dart';
+import '../../features/shop/presentation/pages/checkout_page.dart';
+import '../../features/shop/presentation/pages/order_success_page.dart';
+import '../../features/shop/data/models/checkout_model.dart';
 import '../widgets/main_wrapper.dart';
 
 class AppRouter {
@@ -115,6 +126,30 @@ class AppRouter {
           GoRoute(path: '/emergency-info-clinic', builder: (context, state) => const EmergencyInfoClinicPage()),
           GoRoute(path: '/emergency-tracking', builder: (context, state) => const EmergencyTrackingPage()),
           GoRoute(path: '/get-directions', builder: (context, state) => const GetDirectionsPage()),
+
+          // Scaffolded Features
+          GoRoute(path: '/shop', builder: (context, state) => const ShopPage()),
+          GoRoute(path: '/cart', builder: (context, state) => const CartPage()),
+          GoRoute(path: '/checkout', builder: (context, state) => const CheckoutPage()),
+          GoRoute(
+            path: '/order-success',
+            builder: (context, state) {
+              final extra = state.extra as OrderConfirmationResponse;
+              return OrderSuccessPage(orderData: extra);
+            },
+          ),
+          GoRoute(path: '/marketplace', builder: (context, state) => const MarketplacePage()),
+          GoRoute(path: '/grooming', builder: (context, state) => const GroomingPage()),
+          GoRoute(path: '/boarding', builder: (context, state) => const BoardingPage()),
+          GoRoute(path: '/orders', builder: (context, state) => const OrdersPage()),
+          GoRoute(
+            path: '/order-details',
+            builder: (context, state) {
+              final id = state.uri.queryParameters['id'] ?? '';
+              return OrderDetailsPage(orderId: id);
+            },
+          ),
+          GoRoute(path: '/my-activity', builder: (context, state) => const WorkflowTrackingPage()),
         ],
       ),
     ],

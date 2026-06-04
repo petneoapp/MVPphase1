@@ -10,7 +10,7 @@ class MainWrapper extends StatelessWidget {
     '/home',
     '/my-appointments',
     '/emergency',
-    '/community',
+    '/shop',
     '/profile',
   ];
 
@@ -58,7 +58,7 @@ class MainWrapper extends StatelessWidget {
                   Expanded(child: _buildNavItem(context, 0, currentIndex, Icons.home_outlined, Icons.home, 'Home')),
                   Expanded(child: _buildNavItem(context, 1, currentIndex, Icons.calendar_month_outlined, Icons.calendar_month, 'My Appointments')),
                   const SizedBox(width: 80), // Space for Emergency FAB hump
-                  Expanded(child: _buildNavItem(context, 3, currentIndex, Icons.people_outline, Icons.people, 'Community')),
+                  Expanded(child: _buildNavItem(context, 3, currentIndex, Icons.shopping_bag_outlined, Icons.shopping_bag, 'Shop')),
                   Expanded(child: _buildNavItem(context, 4, currentIndex, Icons.person_outline, Icons.person, 'Profile')),
                 ],
               ),

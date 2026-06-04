@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ShoppingCart } from "lucide-react";
+import { Logo } from "@/components/common/ui/Logo";
 
 const Navbar = () => {
   const router = useRouter();
@@ -23,11 +24,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto flex justify-between items-center px-3 sm:px-5 lg:px-7 py-2 sm:py-3">
         {/* Logo */}
         <div className="flex items-center">
-          <img
-            src="/images/logo.svg"
-            alt="Petneo Logo"
-            className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28" // smaller on mobile
-          />
+          <Logo variant="header" />
         </div>
 
         {/* Desktop Links */}

@@ -131,7 +131,7 @@ export default function ManageTimeSlotsPage(): React.JSX.Element {
   // Fetch vet profile
   const fetchVetProfile = async (): Promise<number | null> => {
     try {
-      const res = await api.get("/vet/myBio");
+      const res = await api.get("/vet/myBio", undefined, "partner");
       // backend sometimes returns wrapped object; prefer data if present
       const profile = (res && (res.data ?? res)) || null;
       setVetProfile(profile);
@@ -157,9 +157,9 @@ export default function ManageTimeSlotsPage(): React.JSX.Element {
       }
 
       const [availRes, breaksRes, overridesRes] = await Promise.allSettled([
-        api.get(`/availability/${id}`),
-        api.get(`/availability/${id}/breaks`),
-        api.get(`/availability/${id}/overrides`),
+        api.get(`/availability/${id}`, undefined, "partner"),
+        api.get(`/availability/${id}/breaks`, undefined, "partner"),
+        api.get(`/availability/${id}/overrides`, undefined, "partner"),
       ]);
 
       // Normalize results
@@ -260,7 +260,7 @@ export default function ManageTimeSlotsPage(): React.JSX.Element {
       });
 
       // POST to /availability/{vet_id}/defaultAvailability
-      await api.post(`/availability/${vetId}/defaultAvailability`, payload);
+      await api.post(`/availability/${vetId}/defaultAvailability`, payload, "partner");
 
       showToast("success", "Default availability saved");
       setMessage("✅ Availability saved successfully.");
@@ -293,7 +293,7 @@ export default function ManageTimeSlotsPage(): React.JSX.Element {
         end_time: endApi,
       };
 
-      const res = await api.post("/availability/break", body);
+      const res = await api.post("/availability/break", body, "partner");
       // API returns created break object
       setBreaks((prev) => [...prev, (res.data ?? res)]);
       showToast("success", "Break added");
@@ -324,7 +324,7 @@ export default function ManageTimeSlotsPage(): React.JSX.Element {
         visit_types: [selectedVisitType],
       };
 
-      const res = await api.post(`/availability/${vetId}/override`, payload);
+      const res = await api.post(`/availability/${vetId}/override`, payload, "partner");
       setOverrides((prev) => [...prev, (res.data ?? res)]);
       showToast("success", "Override added");
       setMessage("✅ Override added successfully.");
