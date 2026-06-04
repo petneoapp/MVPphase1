@@ -98,7 +98,7 @@ export default function PartnerManageTimeSlotsPage(): React.JSX.Element {
                     end_time: "17:00",
                     slot_duration: 30,
                     visit_types: ["in-clinic"],
-                    is_closed: true
+                    is_closed: false
                 };
             });
             setWeeklyList(initialList);
