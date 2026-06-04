@@ -3,13 +3,15 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import { Logo } from "@/components/common/ui/Logo";
-import { ShoppingBag, Search, User, Menu, X, Sparkles } from "lucide-react";
+import { ShoppingBag, Search, User, Menu, X, Sparkles, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/common/ui/Button";
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
+  const { isAuthenticated, flow } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -81,9 +83,15 @@ export function Header() {
             
             <div className="h-6 w-px bg-[var(--color-border)] mx-2"></div>
             
-            <Button variant="ghost" size="sm" className="hidden lg:flex" leftIcon={<User className="w-4 h-4" />} onClick={() => router.push('/login')}>
-              Sign In
-            </Button>
+            {isAuthenticated ? (
+              <Button variant="ghost" size="sm" className="hidden lg:flex" leftIcon={<LayoutDashboard className="w-4 h-4" />} onClick={() => router.push(flow === 'partner' ? '/partner/dashboard' : '/customer/dashboard')}>
+                My Dashboard
+              </Button>
+            ) : (
+              <Button variant="ghost" size="sm" className="hidden lg:flex" leftIcon={<User className="w-4 h-4" />} onClick={() => router.push('/login')}>
+                Sign In
+              </Button>
+            )}
             
             <Button variant="primary" size="sm" leftIcon={<Sparkles className="w-4 h-4" />}>
               Ask AI
@@ -125,7 +133,11 @@ export function Header() {
               </Link>
             ))}
             <div className="pt-6 mt-4 border-t border-[var(--color-border)] grid grid-cols-2 gap-4">
-              <Button variant="outline" className="w-full justify-center" onClick={() => { setMobileMenuOpen(false); router.push('/login'); }}>Sign In</Button>
+              {isAuthenticated ? (
+                <Button variant="outline" className="w-full justify-center" onClick={() => { setMobileMenuOpen(false); router.push(flow === 'partner' ? '/partner/dashboard' : '/customer/dashboard'); }}>Dashboard</Button>
+              ) : (
+                <Button variant="outline" className="w-full justify-center" onClick={() => { setMobileMenuOpen(false); router.push('/login'); }}>Sign In</Button>
+              )}
               <Button variant="primary" className="w-full justify-center">Ask AI</Button>
             </div>
           </div>

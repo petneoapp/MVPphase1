@@ -246,9 +246,9 @@ export default function ManageTimeSlotsPage(): React.JSX.Element {
       const payload = availability.map((a) => {
         // find next date for that weekday (so API receives full datetimes)
         const dateForDay = nextDateForDayOfWeek(a.day_of_week);
-        // Use API formatting (no T, no Z, no millis)
-        const startApi = formatDateTimeForApi(dateForDay, a.start_time);
-        const endApi = formatDateTimeForApi(dateForDay, a.end_time);
+        // Use API formatting (no T, no Z, no millis), or null if closed
+        const startApi = a.is_closed ? null : formatDateTimeForApi(dateForDay, a.start_time);
+        const endApi = a.is_closed ? null : formatDateTimeForApi(dateForDay, a.end_time);
         return {
           day_of_week: a.day_of_week,
           start_time: startApi,

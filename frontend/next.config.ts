@@ -10,6 +10,18 @@ const nextConfig = {
               pathname: '/uploads/**',
           },
           {
+              protocol: 'http',
+              hostname: 'localhost',
+              port: '8000',
+              pathname: '/uploads/**',
+          },
+          {
+              protocol: 'http',
+              hostname: '127.0.0.1',
+              port: '8000',
+              pathname: '/uploads/**',
+          },
+          {
               protocol: 'https',
               hostname: 'unbiased-dane-new.ngrok-free.app',
               port: '',

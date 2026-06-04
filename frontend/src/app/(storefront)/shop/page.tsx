@@ -38,7 +38,7 @@ export default function ShopPage() {
           params.search = searchQuery;
         }
 
-        const response = await apiClient.get("/shop/products", params);
+        const response = await apiClient.get("/products", params);
         setProducts(response.items || []);
       } catch (error) {
         console.error("Failed to fetch products:", error);
