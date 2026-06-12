@@ -37,7 +37,9 @@ export function transformAppointments(responseArray: []): AppointmentDetails[] {
             visitType: VISIT_TYPES.find((x) => x.id === item?.visit_type)?.displayName,
             date: item?.date,
             time: item?.time,
-            cancellationReason: item?.reason
+            cancellationReason: item?.reason,
+            noShowTag: item?.no_show_tag,
+            noShowReason: item?.no_show_reason
         } as AppointmentDetails;
     });
 

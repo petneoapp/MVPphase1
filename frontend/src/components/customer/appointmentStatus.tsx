@@ -37,6 +37,8 @@ export interface AppointmentDetails {
     time: string | undefined;
     location?: string | undefined;
     cancellationReason?: string | undefined;
+    noShowTag?: string | undefined;
+    noShowReason?: string | undefined;
 }
 
 interface AppointmentStatusProps {
@@ -284,6 +286,9 @@ export default function AppointmentStatus({appointmentDetails, onPageTypeChange,
                       )}
                   </div>
                   
+                  {appointmentStatus === "cancelled" && appointmentDetails.noShowTag && (
+                      <span className="mb-4 text-sm font-bold text-red-600">Tag: {appointmentDetails.noShowTag}</span>
+                  )}
                   {appointmentStatus === "cancelled" && appointmentDetails.cancellationReason && (
                       <span className="mb-4 text-sm text-gray-700">Reason: {appointmentDetails.cancellationReason}</span>
                   )}

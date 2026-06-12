@@ -90,6 +90,7 @@ export default function PartnerLayout({ children }: { children: React.ReactNode;
     const menuItems = [
         { icon: <IoMdNotifications />, label: "Work Status", id: PartnerMenuItemType.WORK_STATUS },
         { icon: <PiClockCountdownBold />, label: "Manage Time Slots", id: PartnerMenuItemType.MANAGE_TIME_SLOTS },
+        { icon: <FaUserFriends />, label: "Consultation Chats", id: "CHAT" as PartnerMenuItemType },
         { icon: <FaUserCircle />, label: "My Bio", id: PartnerMenuItemType.MY_BIO },
         { icon: <FaLock />, label: "Privacy", id: PartnerMenuItemType.PRIVACY },
         { icon: <FaQuestionCircle />, label: "Help", id: PartnerMenuItemType.HELP },
@@ -99,7 +100,9 @@ export default function PartnerLayout({ children }: { children: React.ReactNode;
     function handleMenuClick(menuItem: { icon: React.JSX.Element; label: string; id: PartnerMenuItemType; }): void {
         setIsOpen(false);
         // routing to different pages
-        if (menuItem.id === PartnerMenuItemType.MY_BIO) {
+        if (menuItem.id === "CHAT" as PartnerMenuItemType) {
+            router.push(`/partner/chat`);
+        } else if (menuItem.id === PartnerMenuItemType.MY_BIO) {
             router.push(`/partner/myBio`);
         } else if (menuItem.id === PartnerMenuItemType.MANAGE_TIME_SLOTS) {
             router.push(`/partner/manageTimeSlots`);

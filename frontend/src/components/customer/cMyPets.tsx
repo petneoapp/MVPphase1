@@ -73,11 +73,11 @@ export default function C_MyPets({ onViewPetDetails, onViewPetHistory }: C_MyPet
                     {myPets.map((pet) => (
                         <div key={pet.id} className="bg-white rounded-xl shadow flex flex-col items-center">
                             <img
-                                src={pet.profile_picture || pet.profile_url || "/images/placeholder-pet.png"}
+                                src={pet.profile_picture || pet.profile_url || "/images/paw.svg"}
                                 alt={pet.name}
                                 className="w-full h-48 object-cover rounded-t-xl"
                                 onError={(e) => {
-                                    (e.target as HTMLImageElement).src = "/images/placeholder-pet.png"; // Use a local generic placeholder or icon path here if placeholder-pet.png doesn't exist
+                                    (e.target as HTMLImageElement).src = "/images/paw.svg";
                                 }}
                             />
                             <div className="w-full flex justify-center gap-3 py-3">
