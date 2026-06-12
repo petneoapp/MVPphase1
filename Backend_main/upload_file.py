@@ -111,7 +111,7 @@ async def upload_file_bytes(content: bytes, filename: str, content_type: str, en
             with open(local_path, "wb") as f:
                 f.write(content)
                 
-            base_url = os.getenv("BASE_URL", "https://unbiased-dane-new.ngrok-free.app")
+            base_url = os.getenv("BASE_URL", "https://casie-unregrettable-distinguishably.ngrok-free.dev")
             local_url = f"{base_url.rstrip('/')}/uploads/{unique_filename}"
             print(f"[TRACE] Saved to local storage fallback: {local_url}")
             return local_url

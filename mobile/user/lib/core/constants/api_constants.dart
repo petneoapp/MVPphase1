@@ -1,7 +1,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConstants {
-  static String get baseUrl => dotenv.env['API_BASE_URL'] ?? 'https://unbiased-dane-new.ngrok-free.app/api/v1';
+  static String get baseUrl => dotenv.env['API_BASE_URL'] ?? 'https://casie-unregrettable-distinguishably.ngrok-free.dev/api/v1';
 
   // Auth endpoints
   static const String sendOtp = '/user/login/sendOtp'; // completed

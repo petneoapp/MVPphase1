@@ -23,7 +23,7 @@ const nextConfig = {
           },
           {
               protocol: 'https',
-              hostname: 'unbiased-dane-new.ngrok-free.app',
+              hostname: 'casie-unregrettable-distinguishably.ngrok-free.dev',
               port: '',
               pathname: '/uploads/**',
           },

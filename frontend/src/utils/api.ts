@@ -117,7 +117,7 @@ async function request(
 
   let urlString = `${API_BASE_URL}${endpoint}`;
   if (!API_BASE_URL || !API_BASE_URL.startsWith("http")) {
-    urlString = `https://unbiased-dane-new.ngrok-free.app/api/v1${endpoint}`;
+    urlString = `https://casie-unregrettable-distinguishably.ngrok-free.dev/api/v1${endpoint}`;
   }
   const url = new URL(urlString);
 
@@ -188,7 +188,7 @@ export const api = {
         const xhr = new XMLHttpRequest();
         let urlString = `${API_BASE_URL}${endpoint}`;
         if (!API_BASE_URL || !API_BASE_URL.startsWith("http")) {
-          urlString = `https://unbiased-dane-new.ngrok-free.app/api/v1${endpoint}`;
+          urlString = `https://casie-unregrettable-distinguishably.ngrok-free.dev/api/v1${endpoint}`;
         }
         xhr.open("POST", urlString);
         const token = flow === "partner" ? getPartnerAccessToken() : getAccessToken();
@@ -227,7 +227,7 @@ export const api = {
         const xhr = new XMLHttpRequest();
         let urlString = `${API_BASE_URL}${endpoint}`;
         if (!API_BASE_URL || !API_BASE_URL.startsWith("http")) {
-          urlString = `https://unbiased-dane-new.ngrok-free.app/api/v1${endpoint}`;
+          urlString = `https://casie-unregrettable-distinguishably.ngrok-free.dev/api/v1${endpoint}`;
         }
         xhr.open("PUT", urlString);
         const token = flow === "partner" ? getPartnerAccessToken() : getAccessToken();

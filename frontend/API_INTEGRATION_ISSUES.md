@@ -12,7 +12,7 @@
 - **Fix Required**: Update `api.ts` to unwrap the `data` property or update all components to access `.data`.
 
 ## 2. Hardcoded Values
-- **Hardcoded Endpoint**: `https://unbiased-dane-new.ngrok-free.app/api/v1` is hardcoded in `src/utils/api.ts`.
+- **Hardcoded Endpoint**: `https://casie-unregrettable-distinguishably.ngrok-free.dev/api/v1` is hardcoded in `src/utils/api.ts`.
 - **Fix Required**: Move this to `NEXT_PUBLIC_API_BASE` in `.env.local`.
 
 ## 3. Inconsistent API Clients

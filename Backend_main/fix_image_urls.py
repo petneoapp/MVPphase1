@@ -11,7 +11,7 @@ load_dotenv()
 def fix_urls():
     db = SessionLocal()
     # Align to the active ngrok tunnel URL
-    new_domain = os.getenv("BASE_URL", "https://unbiased-dane-new.ngrok-free.app").rstrip("/")
+    new_domain = os.getenv("BASE_URL", "https://casie-unregrettable-distinguishably.ngrok-free.dev").rstrip("/")
     
     # We want to replace any localhost or 127.0.0.1 urls with the public ngrok domain
     old_domains = ["http://localhost:8000", "http://127.0.0.1:8000"]
