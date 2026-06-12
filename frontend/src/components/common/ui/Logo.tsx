@@ -29,7 +29,7 @@ export function Logo({ variant = "header", className = "", withLink = true }: Lo
   const content = (
     <div className={`relative ${width} ${height} ${className}`}>
       <Image 
-        src="/images/logo.svg" 
+        src="/images/logo.png" 
         alt="PetNeo Logo" 
         fill 
         className={`object-contain ${isFooter ? "brightness-0 invert opacity-90 hover:opacity-100 transition-opacity" : ""}`}
