@@ -62,6 +62,7 @@ class ApiClient {
         request.headers['Authorization'] = _token!;
       }
       request.headers['accept'] = 'application/json';
+      request.headers['ngrok-skip-browser-warning'] = '69420';
       if (headers != null) {
         request.headers.addAll(headers);
       }
@@ -115,6 +116,7 @@ class ApiClient {
         request.headers['Authorization'] = _token!;
       }
       request.headers['accept'] = 'application/json';
+      request.headers['ngrok-skip-browser-warning'] = '69420';
       if (headers != null) {
         request.headers.addAll(headers);
       }
@@ -161,6 +163,7 @@ class ApiClient {
       final uri = ApiConstants.getUri(endpoint, queryParameters: queryParameters);
       final defaultHeaders = {
         'accept': 'application/json',
+        'ngrok-skip-browser-warning': '69420',
         'content-type': 'application/json',
         if (_token != null) 'Authorization': _token!,
         ...?headers,
@@ -200,6 +203,7 @@ class ApiClient {
       final uri = ApiConstants.getUri(endpoint, queryParameters: queryParameters);
       final defaultHeaders = {
         'accept': 'application/json',
+        'ngrok-skip-browser-warning': '69420',
         if (_token != null) 'Authorization': _token!,
         ...?headers,
       };
@@ -235,6 +239,7 @@ class ApiClient {
       final uri = ApiConstants.getUri(endpoint, queryParameters: queryParameters);
       final defaultHeaders = {
         'accept': 'application/json',
+        'ngrok-skip-browser-warning': '69420',
         'content-type': 'application/json',
         if (_token != null) 'Authorization': _token!,
         ...?headers,
@@ -275,6 +280,7 @@ class ApiClient {
       final uri = ApiConstants.getUri(endpoint, queryParameters: queryParameters);
       final defaultHeaders = {
         'accept': 'application/json',
+        'ngrok-skip-browser-warning': '69420',
         'content-type': 'application/json',
         if (_token != null) 'Authorization': _token!,
         ...?headers,
@@ -314,6 +320,7 @@ class ApiClient {
       final uri = ApiConstants.getUri(endpoint, queryParameters: queryParameters);
       final defaultHeaders = {
         'accept': 'application/json',
+        'ngrok-skip-browser-warning': '69420',
         if (_token != null) 'Authorization': _token!,
         ...?headers,
       };
