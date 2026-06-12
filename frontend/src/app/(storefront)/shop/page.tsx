@@ -63,7 +63,7 @@ export default function ShopPage() {
     const fetchCampaigns = async () => {
       try {
         const response = await apiClient.get("/campaigns");
-        setCampaigns(response.data || []);
+        setCampaigns(Array.isArray(response) ? response : (response?.data || []));
       } catch (error) {
         console.error("Failed to fetch campaigns:", error);
       }
