@@ -75,7 +75,7 @@ export default function PetDetailsPage() {
         if (activeTab === 'timeline' && fullTimeline.length === 0) {
             setTimelineLoading(true);
             api.get(`/pets/${petId}/full_timeline`, undefined, "partner")
-                .then(res => setFullTimeline(res || []))
+                .then(res => setFullTimeline(res?.timeline || []))
                 .catch(err => {
                     setErrors(curr => [...curr, { id: 'timeline-err', title: 'Error', message: err.message || 'Failed to fetch timeline' }]);
                 })

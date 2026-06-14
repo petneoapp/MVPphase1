@@ -34,6 +34,7 @@ type APIVet = {
   profile_picture_url?: string | null;
   certification_document_url?: string | null;
   services?: string[] | string | null;
+  supported_pets?: string | null;
   emergency?: boolean;
 };
 
@@ -52,19 +53,16 @@ type FormVet = {
   clinic_name: string;
   location: string;
   services: string[];
+  supported_pets: string[];
   profile_picture_url?: string | null;
   certification_document_url?: string | null;
   emergency: boolean;
 };
 
-const SERVICE_OPTIONS = [
-  "Grooming",
-  "Boarding",
-  "Consultation",
-  "Vaccination",
-  "Surgery",
-  "Emergency",
-];
+type ServiceType = {
+  id: number;
+  name: string;
+};
 
 /* ----------------------
    Helpers
@@ -88,6 +86,7 @@ const toFormModel = (api: APIVet | null): FormVet => {
       clinic_name: "",
       location: "",
       services: [],
+      supported_pets: [],
       profile_picture_url: null,
       certification_document_url: null,
       emergency: false,
@@ -120,13 +119,14 @@ const toFormModel = (api: APIVet | null): FormVet => {
     clinic_name: api.clinic_name || "",
     location: api.location || "",
     services: svc,
+    supported_pets: api.supported_pets ? api.supported_pets.split(",").map(p => p.trim()).filter(Boolean) : [],
     profile_picture_url: api.profile_picture_url || null,
     certification_document_url: api.certification_document_url || null,
     emergency: !!api.emergency,
   };
 };
 
-const toServiceIdsString = (services: string[]) => services.map((s) => s.trim()).filter(Boolean).join(",");
+
 
 /* ----------------------
    Component
@@ -140,6 +140,19 @@ export default function MyBioPage(): React.JSX.Element {
   const updateEmergencyPath = useMemo(() => `${apiBase}/vet/updateEmergency`, [apiBase]);
 
   const NGROK_HEADER: Record<string, string> = SKIP_NGROK_HEADER ? { "ngrok-skip-browser-warning": "69420" } : {};
+
+  const [servicesAvailable, setServicesAvailable] = useState<ServiceType[]>([]);
+  const toServiceIdsString = (services: string[]) => {
+      const servicesIDs: number[] = [];
+      services.forEach(service => {
+          servicesAvailable.forEach(serviceAvailable => {
+              if (service === serviceAvailable.name) {
+                  servicesIDs.push(serviceAvailable.id);
+              }
+          })
+      })
+      return servicesIDs.join(",");
+  };
 
   const [profile, setProfile] = useState<APIVet | null>(null);
   const [form, setForm] = useState<FormVet>(toFormModel(null));
@@ -167,9 +180,11 @@ export default function MyBioPage(): React.JSX.Element {
         // Use api wrapper for GET so it handles Authorization + ngrok header (if configured)
         console.log(`[MyBioPage] GET profile endpoint: ${myBioEndpoint}`);
         const data = (await api.get(myBioEndpoint, undefined, "partner")) as APIVet;
+        const servicesData = (await api.get("/services", undefined, "partner") as ServiceType[]);
         if (!mounted) return;
         setProfile(data);
         setForm(toFormModel(data));
+        setServicesAvailable(servicesData);
       } catch (e: any) {
         console.error("MyBio GET error:", e);
         setError(e?.message || "Failed to fetch profile");
@@ -204,6 +219,7 @@ export default function MyBioPage(): React.JSX.Element {
       fd.append("clinic_name", form.clinic_name);
       fd.append("location", form.location);
       fd.append("service_ids", toServiceIdsString(form.services));
+      fd.append("supported_pets", form.supported_pets.join(", "));
 
       if (profilePic) fd.append("profile_picture", profilePic);
       if (certificate) fd.append("certification_document", certificate);
@@ -573,22 +589,52 @@ export default function MyBioPage(): React.JSX.Element {
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">Services</label>
               <div className="flex flex-wrap gap-3">
-                {SERVICE_OPTIONS.map((svc) => {
-                  const checked = form.services.includes(svc);
+                {servicesAvailable.map((svc) => {
+                  const checked = !!form.services.find((item) => item === svc.name);
                   return (
-                    <label key={svc} className="inline-flex items-center space-x-2">
+                    <label key={svc.id} className="inline-flex items-center space-x-2">
                       <input
                         type="checkbox"
                         disabled={!editing}
                         checked={checked}
                         onChange={(e) => {
                           const next = new Set(form.services);
-                          if (e.target.checked) next.add(svc); else next.delete(svc);
+                          if (e.target.checked) next.add(svc.name); else next.delete(svc.name);
                           onChange("services", Array.from(next));
                         }}
                         className="h-4 w-4 rounded border-gray-300"
                       />
-                      <span className="text-sm text-gray-700">{svc}</span>
+                      <span className="text-sm text-gray-700">{svc.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Supported Pets */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Supported Pets</label>
+              <div className="flex flex-wrap gap-3">
+                {["Dogs", "Cats", "Birds", "Rabbits", "Reptiles", "Others"].map((pet) => {
+                  const checked = form.supported_pets.some(p => p.toLowerCase() === pet.toLowerCase());
+                  return (
+                    <label key={pet} className="inline-flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        disabled={!editing}
+                        checked={checked}
+                        onChange={(e) => {
+                          const next = new Set(form.supported_pets.map(p => p.toLowerCase()));
+                          if (e.target.checked) next.add(pet.toLowerCase()); else next.delete(pet.toLowerCase());
+                          // Map back to correct casing
+                          const newPets = Array.from(next).map(p => 
+                              p.charAt(0).toUpperCase() + p.slice(1)
+                          );
+                          onChange("supported_pets", newPets);
+                        }}
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                      <span className="text-sm text-gray-700">{pet}</span>
                     </label>
                   );
                 })}

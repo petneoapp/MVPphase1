@@ -35,6 +35,7 @@ type APIVet = {
     profile_picture_url?: string | null;
     certification_document_url?: string | null;
     services?: string[];
+    supported_pets?: string | null;
     emergency?: boolean;
 };
 
@@ -55,6 +56,7 @@ type FormVet = {
     clinic_longitude: number;
     location: string;
     services: string[];
+    supported_pets: string[];
     profile_picture_url?: string | null;
     certification_document_url?: string | null;
     emergency: boolean;
@@ -87,6 +89,7 @@ const toFormModel = (api: APIVet | null): FormVet => {
             clinic_longitude: 0,
             location: "",
             services: [],
+            supported_pets: [],
             profile_picture_url: null,
             certification_document_url: null,
             emergency: false,
@@ -116,6 +119,7 @@ const toFormModel = (api: APIVet | null): FormVet => {
         clinic_longitude: api.clinic_longitude || 0,
         location: api.location || "",
         services: api.services || [],
+        supported_pets: api.supported_pets ? api.supported_pets.split(",").map(p => p.trim()).filter(Boolean) : [],
         profile_picture_url: api.profile_picture_url || null,
         certification_document_url: api.certification_document_url || null,
         emergency: !!api.emergency,
@@ -208,6 +212,7 @@ export default function PartnerMyBioPage(): React.JSX.Element {
             fd.append("clinic_longitude", form.clinic_longitude.toString());
             fd.append("location", form.location);
             fd.append("service_ids", toServiceIdsString(form.services));
+            fd.append("supported_pets", form.supported_pets.join(", "));
 
             if (profilePic) fd.append("profile_picture", profilePic);
             if (certificate) fd.append("certification_document", certificate);
@@ -542,6 +547,36 @@ export default function PartnerMyBioPage(): React.JSX.Element {
                                                 className="h-4 w-4 rounded border-gray-300"
                                             />
                                             <span className="text-sm text-gray-700">{svc.name}</span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Supported Pets */}
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Supported Pets</label>
+                            <div className="flex flex-wrap gap-3">
+                                {["Dogs", "Cats", "Birds", "Rabbits", "Reptiles", "Others"].map((pet) => {
+                                    const checked = form.supported_pets.some(p => p.toLowerCase() === pet.toLowerCase());
+                                    return (
+                                        <label key={pet} className="inline-flex items-center space-x-2">
+                                            <input
+                                                type="checkbox"
+                                                disabled={!editing}
+                                                checked={checked}
+                                                onChange={(e) => {
+                                                    const next = new Set(form.supported_pets.map(p => p.toLowerCase()));
+                                                    if (e.target.checked) next.add(pet.toLowerCase()); else next.delete(pet.toLowerCase());
+                                                    // Map back to correct casing
+                                                    const newPets = Array.from(next).map(p => 
+                                                        p.charAt(0).toUpperCase() + p.slice(1)
+                                                    );
+                                                    onChange("supported_pets", newPets);
+                                                }}
+                                                className="h-4 w-4 rounded border-gray-300"
+                                            />
+                                            <span className="text-sm text-gray-700">{pet}</span>
                                         </label>
                                     );
                                 })}
