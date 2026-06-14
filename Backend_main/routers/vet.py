@@ -156,3 +156,34 @@ def update_emergency(
         success=True,
         message=f"Emergency status updated to {'ON' if update_in.emergency else 'OFF'} successfully"
     )
+
+# ---------------------------
+# GET treated pets
+# ---------------------------
+@router.get("/treated_pets")
+def get_treated_pets(vet_id: int = Depends(get_current_vet), db: Session = Depends(get_db)):
+    """
+    Returns a distinct list of all pets treated by the logged-in vet.
+    """
+    appointments = db.query(Appointment).filter(Appointment.vet_id == vet_id).all()
+    pet_ids = set([appt.pet_id for appt in appointments if appt.pet_id is not None])
+
+    pets = db.query(Pet).filter(Pet.id.in_(pet_ids)).all()
+    user_ids = set([pet.user_id for pet in pets])
+    from models.user_models import User
+    users = db.query(User).filter(User.id.in_(user_ids)).all()
+    user_map = {user.id: user for user in users}
+
+    data = []
+    for pet in pets:
+        owner = user_map.get(pet.user_id)
+        data.append({
+            "id": pet.id,
+            "name": pet.name,
+            "species": pet.species,
+            "profile_picture": pet.profile_picture,
+            "owner_name": f"{owner.first_name or ''} {owner.last_name or ''}".strip() if owner else "Unknown Owner",
+            "is_deleted": pet.is_deleted
+        })
+
+    return standard_response(success=True, message="Treated pets fetched successfully", data=data)

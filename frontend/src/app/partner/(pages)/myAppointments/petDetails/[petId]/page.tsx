@@ -20,6 +20,7 @@ import PopupModel from "@/components/customer/popupModel";
 import {AlertCircle} from "lucide-react";
 import {removeItemById} from "@/utils/common";
 import { AlertBanner } from "@/components/common/AlertBanner";
+import { TimelineView } from "@/components/common/TimelineView";
 
 export default function PetDetailsPage() {
     const params = useParams();
@@ -64,9 +65,24 @@ export default function PetDetailsPage() {
         }
     }, []);
 
-    const [activeTab, setActiveTab] = useState<'visit-details' | 'pet-info' | 'medical-history'>(
+    const [activeTab, setActiveTab] = useState<'visit-details' | 'pet-info' | 'medical-history' | 'timeline'>(
         'visit-details'
     );
+    const [fullTimeline, setFullTimeline] = useState<any[]>([]);
+    const [timelineLoading, setTimelineLoading] = useState(false);
+
+    useEffect(() => {
+        if (activeTab === 'timeline' && fullTimeline.length === 0) {
+            setTimelineLoading(true);
+            api.get(`/pets/${petId}/full_timeline`, undefined, "partner")
+                .then(res => setFullTimeline(res || []))
+                .catch(err => {
+                    setErrors(curr => [...curr, { id: 'timeline-err', title: 'Error', message: err.message || 'Failed to fetch timeline' }]);
+                })
+                .finally(() => setTimelineLoading(false));
+        }
+    }, [activeTab]);
+
     const pet = useMemo<PartnerPetDetails | undefined>(() => {
         return petCompleteDetails?.pet;
     }, [petCompleteDetails]);
@@ -296,7 +312,14 @@ export default function PetDetailsPage() {
                                 />
                             </div>
                             <div>
-                                <h1 className="text-xl font-bold text-gray-900 mb-2">{pet?.name  || ""}</h1>
+                                <div className="flex items-center gap-3 mb-2">
+                                    <h1 className="text-xl font-bold text-gray-900">{pet?.name  || ""}</h1>
+                                    {(pet as any)?.is_deleted && (
+                                        <span className="px-2 py-0.5 text-xs font-bold bg-red-100 text-red-700 rounded-full border border-red-200">
+                                            Deleted Profile
+                                        </span>
+                                    )}
+                                </div>
                                 <p className="text-gray-600 text-xs">
                                     {pet?.species  || ""} | {pet?.age  || ""}
                                 </p>
@@ -311,6 +334,7 @@ export default function PetDetailsPage() {
                             { id: 'visit-details', label: 'Visit Details' },
                             { id: 'pet-info', label: 'Pet Info' },
                             { id: 'medical-history', label: 'Medical History' },
+                            { id: 'timeline', label: 'Timeline' },
                         ].map((tab) => (
                             <button
                                 key={tab.id}
@@ -585,6 +609,39 @@ export default function PetDetailsPage() {
                                         </form>
                                     </PopupModel>
                                 </div>
+                            </div>
+                        )}
+
+                        {/* Timeline Tab */}
+                        {activeTab === 'timeline' && (
+                            <div className="space-y-6">
+                                <h2 className="text-lg font-bold text-gray-900 mb-4">Complete Treatment Timeline</h2>
+                                {timelineLoading ? (
+                                    <div className="py-8 text-center"><p className="text-gray-500">Loading timeline...</p></div>
+                                ) : fullTimeline.length === 0 ? (
+                                    <div className="py-8 text-center"><p className="text-gray-500">No timeline history available.</p></div>
+                                ) : (
+                                    <div className="relative border-l-2 border-pink-200 ml-4 space-y-8">
+                                        {fullTimeline.map((item, idx) => (
+                                            <div key={idx} className="relative pl-6">
+                                                <div className="absolute w-4 h-4 bg-pink-500 rounded-full -left-[9px] top-1 border-4 border-white shadow-sm" />
+                                                <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                                                    <div className="flex justify-between items-start mb-2">
+                                                        <div>
+                                                            <h3 className="font-bold text-gray-800 text-sm">{item.date} at {item.start_time}</h3>
+                                                            <p className="text-xs text-gray-500">{item.visit_type?.toUpperCase()} • {item.status?.toUpperCase()}</p>
+                                                        </div>
+                                                        <span className="text-xs font-semibold text-pink-600 bg-pink-50 px-2 py-1 rounded-full">
+                                                            {item.vet_name}
+                                                        </span>
+                                                    </div>
+                                                    {item.reason && <p className="text-sm text-gray-700 mt-2 font-medium">Reason: <span className="font-normal">{item.reason}</span></p>}
+                                                    {item.notes && <p className="text-sm text-gray-600 mt-1 italic">Notes: {item.notes}</p>}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

@@ -42,6 +42,7 @@ interface VisitHistoryDetails {
     reason: string | null;
     status: 'booked' | 'completed' | 'cancelled' | 'no-show';
     visit_type: 'in-clinic' | 'tele' | 'in-home';
+    notes?: string | null;
 }
 
 export default function C_PetHistory({petId} : C_PetHistoryProps) {
@@ -186,7 +187,7 @@ export default function C_PetHistory({petId} : C_PetHistoryProps) {
     const visitEvents: TimelineEvent[] = visitHistory.map(app => ({
         id: app.appointment_id.toString(),
         title: app.visit_type === 'in-clinic' ? 'Clinic Consultation' : app.visit_type === 'tele' ? 'Online Consultation' : 'Home Visit',
-        description: app.reason || 'No specific reason provided.',
+        description: app.notes ? `${app.reason || 'No specific reason provided.'}\n\nNotes: ${app.notes}` : app.reason || 'No specific reason provided.',
         timestamp: `${app.date} ${app.start_time} - ${app.end_time}`,
         status: app.status === 'completed' ? 'success' : app.status === 'cancelled' ? 'danger' : 'info'
     }));

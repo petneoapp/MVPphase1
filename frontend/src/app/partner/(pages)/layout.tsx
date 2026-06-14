@@ -8,7 +8,7 @@ import {
     FaUserCircle,
     FaUserFriends
 } from "react-icons/fa";
-import {Menu, X} from "lucide-react";
+import { Menu, X, History } from "lucide-react";
 import SimpleOverlay from "@/components/customer/simpleOverlay";
 import React, {useEffect, useRef, useState, useCallback} from "react";
 import { LoadingState } from "@/components/common/LoadingState";
@@ -91,6 +91,7 @@ export default function PartnerLayout({ children }: { children: React.ReactNode;
         { icon: <IoMdNotifications />, label: "Work Status", id: PartnerMenuItemType.WORK_STATUS },
         { icon: <PiClockCountdownBold />, label: "Manage Time Slots", id: PartnerMenuItemType.MANAGE_TIME_SLOTS },
         { icon: <FaUserFriends />, label: "Consultation Chats", id: "CHAT" as PartnerMenuItemType },
+        { icon: <History />, label: "Pet Archive", id: PartnerMenuItemType.PET_ARCHIVE },
         { icon: <FaUserCircle />, label: "My Bio", id: PartnerMenuItemType.MY_BIO },
         { icon: <FaLock />, label: "Privacy", id: PartnerMenuItemType.PRIVACY },
         { icon: <FaQuestionCircle />, label: "Help", id: PartnerMenuItemType.HELP },
@@ -114,6 +115,8 @@ export default function PartnerLayout({ children }: { children: React.ReactNode;
             router.push(`/partner/help`);
         } else if (menuItem.id === PartnerMenuItemType.ABOUT) {
             router.push(`/partner/about`);
+        } else if (menuItem.id === PartnerMenuItemType.PET_ARCHIVE) {
+            router.push(`/partner/petArchive`);
         }
     }
 

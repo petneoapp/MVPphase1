@@ -9,12 +9,14 @@ import { EmptyState } from "@/components/common/EmptyState";
 interface RecentAppointmentsProps {
   appointments: AppointmentDetails[];
   onViewAll: () => void;
+  onAppointmentClick?: (appointment: AppointmentDetails) => void;
   loading?: boolean;
 }
 
 export default function RecentAppointments({
   appointments,
   onViewAll,
+  onAppointmentClick,
   loading,
 }: RecentAppointmentsProps) {
   return (
@@ -39,7 +41,7 @@ export default function RecentAppointments({
                     status={normalizedStatus}
                     assignedTo={app.clinicName || app.location}
                     actionLabel="View Details"
-                    onAction={onViewAll} // Customer will use onViewAll to navigate for now
+                    onAction={() => onAppointmentClick ? onAppointmentClick(app) : onViewAll()}
                   />
                 );
               })}

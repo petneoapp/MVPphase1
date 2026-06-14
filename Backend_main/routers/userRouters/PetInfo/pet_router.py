@@ -60,7 +60,10 @@ def get_pet_complete_details(pet_id: int, db: Session = Depends(get_db), current
     """
     pet = db.query(Pet).filter(Pet.id == pet_id).first()
     if not pet:
+        # Fallback if the pet is completely hard-deleted, but we shouldn't fail completely if possible
+        # Actually, if pet is not found, we can't do much.
         return standard_response(success=False, message="Pet not found", status_code=404)
+
 
     user = db.query(User).filter(User.id == pet.user_id).first()
     if not user:
@@ -143,6 +146,7 @@ def get_pet_complete_details(pet_id: int, db: Session = Depends(get_db), current
             "weight": float(pet.weight) if pet.weight else None,
             "licence": pet.licence,
             "profile_picture": pet.profile_picture,
+            "is_deleted": pet.is_deleted,
         },
         "Owner": {
             "name": f"{user.first_name} {user.last_name}",
@@ -153,6 +157,47 @@ def get_pet_complete_details(pet_id: int, db: Session = Depends(get_db), current
         "prescriptions": prescription_list
     }
     return standard_response(success=True, message="Pet details fetched successfully", data=data)
+
+@router.get("/{pet_id}/full_timeline")
+def get_pet_full_timeline(pet_id: int, db: Session = Depends(get_db), current_vet: int = Depends(get_current_vet)):
+    """
+    Fetch pet full timeline across all doctors (if allowed) for the vet app.
+    """
+    pet = db.query(Pet).filter(Pet.id == pet_id).first()
+    if not pet:
+        return standard_response(success=False, message="Pet not found", status_code=404)
+
+    # We allow the vet to see the timeline if they have at least one appointment with this pet
+    has_treated = db.query(Appointment).filter(Appointment.pet_id == pet_id, Appointment.vet_id == current_vet).first()
+    if not has_treated:
+        return standard_response(success=False, message="Unauthorized to view this pet's full timeline", status_code=403)
+
+    visits = db.query(Appointment).filter(Appointment.pet_id == pet_id, Appointment.status.in_(["completed", "booked", "on-going"])).all()
+    from models.vet import Vet
+    vets = db.query(Vet).filter(Vet.id.in_([v.vet_id for v in visits])).all()
+    vet_map = {v.id: f"{v.first_name or ''} {v.last_name or ''}".strip() for v in vets}
+
+    visit_history = [
+        {
+            "appointment_id": appt.id,
+            "date": appt.appointment_date.strftime("%Y-%m-%d"),
+            "start_time": appt.start_time.strftime("%I:%M %p") if appt.start_time else None,
+            "end_time": appt.end_time.strftime("%I:%M %p") if appt.end_time else None,
+            "reason": appt.reason,
+            "notes": appt.notes,
+            "status": appt.status,
+            "visit_type": appt.visit_type,
+            "vet_name": vet_map.get(appt.vet_id, "Unknown Vet")
+        }
+        for appt in visits
+    ]
+    visit_history.sort(
+        key=lambda v: datetime.strptime(f"{v['date']} {v['start_time']}", "%Y-%m-%d %I:%M %p")
+        if v["start_time"] else datetime.strptime(v["date"], "%Y-%m-%d"),
+        reverse=True
+    )
+    
+    return standard_response(success=True, message="Pet timeline fetched successfully", data=visit_history)
 
 
 @router.post("/addPrescription")
@@ -359,7 +404,20 @@ async def add_pet(
         existing_pet = db.query(Pet).filter(Pet.user_id == user_id, Pet.licence == licence).first()
         if existing_pet:
             if existing_pet.is_deleted:
-                return standard_response(success=False, message=f"A pet with licence '{licence}' exists but was deleted.", data={"pet_id": existing_pet.id, "deleted": True})
+                # Instead of error, silently restore the pet with the new details
+                existing_pet.is_deleted = False
+                existing_pet.name = name
+                existing_pet.species = species
+                existing_pet.breed_id = breed_id
+                existing_pet.gender = gender
+                if date_of_birth:
+                    existing_pet.date_of_birth = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
+                if weight is not None: existing_pet.weight = weight
+                if profile_picture:
+                    existing_pet.profile_picture = await upload_file_local(profile_picture, "pet_image", user_id)
+                db.commit()
+                db.refresh(existing_pet)
+                return standard_response(success=True, message="Pet restored and updated successfully", data={"pet_id": existing_pet.id, "restored": True})
             else:
                 return standard_response(success=False, message=f"A pet with licence '{licence}' already exists.", status_code=400)
 

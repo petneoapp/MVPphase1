@@ -36,10 +36,11 @@ interface C_DashboardMainProps {
     onViewPetDetails: (petId: number) => void;
     onPageTypeChange: (pageType: PageType) => void;
     onServiceSelection: (service: Service) => void;
+    onAppointmentSelection?: (appointmentId: number) => void;
 }
 
 
-export default function C_DashboardMain({ user, pets, onViewPetDetails, onPageTypeChange, onServiceSelection }: C_DashboardMainProps) {
+export default function C_DashboardMain({ user, pets, onViewPetDetails, onPageTypeChange, onServiceSelection, onAppointmentSelection }: C_DashboardMainProps) {
 
     const services: Service[] = [
     {
@@ -165,6 +166,13 @@ export default function C_DashboardMain({ user, pets, onViewPetDetails, onPageTy
                 <RecentAppointments
                     appointments={myAppointments}
                     onViewAll={HandleViewAllAppointments}
+                    onAppointmentClick={(appt) => {
+                        if (onAppointmentSelection && appt.id) {
+                            onAppointmentSelection(appt.id);
+                        } else {
+                            HandleViewAllAppointments();
+                        }
+                    }}
                     loading={loading}
                 />
             </DashboardErrorBoundary>

@@ -20,6 +20,7 @@ import C_MyAppointments from "@/components/customer/cMyAppointments";
 import SimpleOverlay from "@/components/customer/simpleOverlay";
 import C_VetProfile from "@/components/customer/cVetProfile";
 import C_VetAppointmentBooking, {VISIT_ID} from "@/components/customer/cVetAppointmentBooking";
+import C_MyAddresses from "@/components/customer/cMyAddresses";
 import {api, clearAuth} from "@/utils/api";
 import { LoadingState } from "@/components/common/LoadingState";
 import C_MyPets from "@/components/customer/cMyPets";
@@ -121,7 +122,8 @@ function CustomerDashboardContent() {
         {id: PageType.PRIVACY, label: "Privacy"},
         {id: PageType.HELP, label: "Help"},
         {id: PageType.ABOUT, label: "About"},
-        {id: PageType.MY_APPOINTMENTS, label: "My Appointments"}
+        {id: PageType.MY_APPOINTMENTS, label: "My Appointments"},
+        {id: PageType.MY_ADDRESSES, label: "My Addresses"}
     ];
 
     const [breadCrumbs, setBreadCrumbs] = useState<BreadCrumb[]>([BreadCrumbsData[0]]);
@@ -150,6 +152,8 @@ function CustomerDashboardContent() {
             breadCrumbsLocal = [{ id: PageType.DASHBOARD, label: "Home"}, {id: PageType.HELP, label: "Help"}];
         } else if (pageType === PageType.ABOUT) {
             breadCrumbsLocal = [{ id: PageType.DASHBOARD, label: "Home"}, {id: PageType.ABOUT, label: "About"}];
+        } else if (pageType === PageType.MY_ADDRESSES) {
+            breadCrumbsLocal = [{ id: PageType.DASHBOARD, label: "Home"}, {id: PageType.MY_ADDRESSES, label: "My Addresses"}];
         } else {
             const bcIndex = breadCrumbs.findIndex((item) => item.id === pageType);
             if (bcIndex >= 0) {
@@ -180,6 +184,7 @@ function CustomerDashboardContent() {
     const menuItems = [
         { icon: <FaUserFriends />, label: "My Pets", id: PageType.MY_PETS },
         { icon: <FaUserCircle />, label: "My Bio", id: PageType.MY_BIO },
+        { icon: <FaMapMarkerAlt />, label: "My Addresses", id: PageType.MY_ADDRESSES },
         { icon: <FaExclamationTriangle />, label: "Consultation Chats", id: "CHAT" as PageType },
         { icon: <FaLock />, label: "Privacy", id: PageType.PRIVACY },
         { icon: <FaQuestionCircle />, label: "Help", id: PageType.HELP },
@@ -237,6 +242,13 @@ function CustomerDashboardContent() {
         handlePageTypeChange(PageType.PET_HISTORY);
     };
 
+    const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
+
+    const handleAppointmentSelection = (appointmentId: number) => {
+        setSelectedAppointmentId(appointmentId);
+        handlePageTypeChange(PageType.MY_APPOINTMENTS);
+    };
+
     const [selectedServiceVisitType, setSelectedServiceVisitType] = useState<VISIT_ID | null>(null);
     const [selectedServiceId, SetSelectedServiceId] = useState<string | null>(null);
     const handleServiceSelection = (service: Service): void => {
@@ -284,12 +296,13 @@ function CustomerDashboardContent() {
         ))}
 
         {pageType === PageType.DASHBOARD && (
-          <C_DashboardMain
+            <C_DashboardMain
             user={user}
             pets={userPets}
             onViewPetDetails={viewPetDetails}
             onPageTypeChange={handlePageTypeChange}
             onServiceSelection={handleServiceSelection}
+            onAppointmentSelection={handleAppointmentSelection}
           />
         )}
         {pageType === PageType.VET_DETAILS && (
@@ -318,11 +331,12 @@ function CustomerDashboardContent() {
         )}
         {pageType === PageType.PET_INFO && <C_PetInfo petId={selectedPetId} goToMyPets={goToMyPets} />}
         {pageType === PageType.PET_HISTORY && <C_PetHistory petId={selectedPetId} />}
-        {pageType === PageType.MY_APPOINTMENTS && <C_MyAppointments onPageTypeChange={handlePageTypeChange} />}
+        {pageType === PageType.MY_APPOINTMENTS && <C_MyAppointments onPageTypeChange={handlePageTypeChange} initialAppointmentId={selectedAppointmentId} />}
         {pageType === PageType.MY_BIO && <C_MyBio onProfileUpdate={refetch} />}
         {pageType === PageType.PRIVACY && <div className="p-8 text-center text-gray-600 bg-white m-4 rounded-xl shadow"><h2 className="text-2xl font-bold mb-4 text-gray-800">Privacy Policy</h2><p>Your privacy is important to us. We will update this section soon.</p></div>}
         {pageType === PageType.HELP && <div className="p-8 text-center text-gray-600 bg-white m-4 rounded-xl shadow"><h2 className="text-2xl font-bold mb-4 text-gray-800">Help & Support</h2><p>Our support system is under construction. Please check back later.</p></div>}
         {pageType === PageType.ABOUT && <div className="p-8 text-center text-gray-600 bg-white m-4 rounded-xl shadow"><h2 className="text-2xl font-bold mb-4 text-gray-800">About PetNeo</h2><p>PetNeo is your complete pet care companion platform.</p></div>}
+        {pageType === PageType.MY_ADDRESSES && <C_MyAddresses onPageTypeChange={handlePageTypeChange} />}
       </main>
 
       {loading && <LoadingState fullScreen message="Loading dashboard..." />}

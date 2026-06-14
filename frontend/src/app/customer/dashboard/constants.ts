@@ -11,5 +11,6 @@ export enum PageType {
     PRIVACY = "privacy",
     HELP = "help",
     ABOUT = "about",
-    MY_APPOINTMENTS = "myAppointments"
+    MY_APPOINTMENTS = "myAppointments",
+    MY_ADDRESSES = "myAddresses"
 }

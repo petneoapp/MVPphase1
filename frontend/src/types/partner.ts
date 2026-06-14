@@ -13,6 +13,7 @@ export enum PartnerMenuItemType {
   PRIVACY = "privacy",
   HELP = "help",
   ABOUT = "about",
+  PET_ARCHIVE = "petArchive",
 }
 
 export type PartnerDetails = {

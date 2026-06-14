@@ -42,6 +42,7 @@ const WEEKDAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satur
 export default function PartnerManageTimeSlotsPage(): React.JSX.Element {
     const [loading, setLoading] = useState(true);
     const [vetId, setVetId] = useState<number | null>(null);
+    const [vetServices, setVetServices] = useState<string[]>([]);
     const [activeTab, setActiveTab] = useState<"weekly" | "breaks" | "overrides">("weekly");
 
     // States for Weekly Schedule
@@ -143,6 +144,7 @@ export default function PartnerManageTimeSlotsPage(): React.JSX.Element {
                     const vid = profileData?.vet_id || profileData?.id;
                     if (vid) {
                         setVetId(vid);
+                        setVetServices(profileData?.services || []);
                         await loadAllData(vid);
                     } else {
                         showToast("error", "Vet ID not identified.");
@@ -393,7 +395,7 @@ export default function PartnerManageTimeSlotsPage(): React.JSX.Element {
                                                 <div>
                                                     <label className="block text-xs text-gray-400 font-medium mb-1">Visit Channel</label>
                                                     <div className="flex flex-wrap gap-1.5 mt-1">
-                                                        {["in-clinic", "online", "home-visit"].map(vt => {
+                                                        {Array.from(new Set(["in-clinic", "online", "home-visit", ...vetServices])).map(vt => {
                                                             const active = (row.visit_types || []).includes(vt);
                                                             return (
                                                                 <button

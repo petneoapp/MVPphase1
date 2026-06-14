@@ -54,7 +54,7 @@ class _VetsListPageState extends State<VetsListPage> {
         queryParameters: {
           'user_lat': position['latitude'].toString(),
           'user_lon': position['longitude'].toString(),
-          'radius_km': '5',
+          'radius_km': '15',
           'target_date': targetDate,
           'service_ids': '',
           'visit_type': widget.visitType,

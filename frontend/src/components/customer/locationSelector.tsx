@@ -66,6 +66,10 @@ export default function LocationSelector({onSelectedAddressChange, selectedAddre
             });
           });
             setAddresses(localAddresses);
+            if (localAddresses.length > 0 && !selectedAddress?.id) {
+              setSelectedAddress(localAddresses[0]);
+              onSelectedAddressChange(localAddresses[0]);
+            }
         }
     }).catch((error) => {
         setErrors(curr => [

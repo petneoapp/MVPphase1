@@ -16,6 +16,7 @@ import { EmptyAppointments } from "../common/EmptyStates";
 
 interface C_MyAppointmentsProps {
     onPageTypeChange: (pageType: PageType) => void;
+    initialAppointmentId?: number | null;
 }
 
 export function transformAppointments(responseArray: []): AppointmentDetails[] {
@@ -39,7 +40,11 @@ export function transformAppointments(responseArray: []): AppointmentDetails[] {
             time: item?.time,
             cancellationReason: item?.reason,
             noShowTag: item?.no_show_tag,
-            noShowReason: item?.no_show_reason
+            noShowReason: item?.no_show_reason,
+            notes: item?.notes,
+            prescription: item?.prescription?.medication_name 
+                ? `Medication: ${item.prescription.medication_name}\nDosage: ${item.prescription.dosage}\nInstructions: ${item.prescription.instructions}`
+                : item?.prescription?.text || item?.prescription
         } as AppointmentDetails;
     });
 
@@ -68,7 +73,7 @@ export function transformAppointments(responseArray: []): AppointmentDetails[] {
 }
 
 
-export default function C_MyAppointments({ onPageTypeChange }: C_MyAppointmentsProps) {
+export default function C_MyAppointments({ onPageTypeChange, initialAppointmentId }: C_MyAppointmentsProps) {
     const [selectedTab, setSelectedTab] = useState<"active" | "cancelled" | "completed">("active");
 
     const [activeAppointments, setActiveAppointments] = useState<AppointmentDetails[]>([]);
@@ -91,14 +96,21 @@ export default function C_MyAppointments({ onPageTypeChange }: C_MyAppointmentsP
             setErrors(removeItemById(errors, "get-my-appointments-api"));
             const userAppointmentDataFetch = api.get("/user/appointment/myAppointments");
             Promise.all([userAppointmentDataFetch]).then(([res1]) => {
+                let transformedAppointments: AppointmentDetails[] = [];
                 if (Array.isArray(res1?.appointments)) {
                     //transforming the api response into UI usable data
-                    const transformedAppointments = transformAppointments(res1.appointments);
+                    transformedAppointments = transformAppointments(res1.appointments);
 
                     setActiveAppointments(transformedAppointments.filter((item: AppointmentDetails) => item.status === 'booked'));
                     setCompletedAppointments(transformedAppointments.filter((item: AppointmentDetails) => item.status === 'completed'));
                     setCancelledAppointments(transformedAppointments.filter((item: AppointmentDetails) => item.status === 'cancelled'));
                     setLoading(false);
+                }
+                if (initialAppointmentId && transformedAppointments.length > 0) {
+                    const appt = transformedAppointments.find((a: AppointmentDetails) => a.id === initialAppointmentId);
+                    if (appt) {
+                        fetchAndSetSelectedAppointmentDetails(appt);
+                    }
                 }
             }).catch((error) => {
                 setErrors(curr => [
@@ -127,6 +139,16 @@ export default function C_MyAppointments({ onPageTypeChange }: C_MyAppointmentsP
             app.location = userAppointmentRes.visit_type === VISIT_ID.CLINIC_VISIT ? userAppointmentRes?.clinic_location :
                 userAppointmentRes.visit_type === VISIT_ID.HOME_VISIT ? userAppointmentRes?.Visit_address?.address :
                     userAppointmentRes.visit_type === VISIT_ID.ONLINE ? "Online" : "";
+            
+            // Also grab the notes and prescription from the detailed response if not present
+            if (!app.notes && userAppointmentRes?.notes) app.notes = userAppointmentRes.notes;
+            if (!app.prescription && userAppointmentRes?.prescription) {
+                const p = userAppointmentRes.prescription;
+                app.prescription = p.medication_name 
+                    ? `Medication: ${p.medication_name}\nDosage: ${p.dosage}\nInstructions: ${p.instructions}`
+                    : p.text || p;
+            }
+
             setSelectedAppointment(app);
             setLoading(false);
         } catch (error: any) {

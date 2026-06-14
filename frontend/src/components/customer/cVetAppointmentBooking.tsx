@@ -121,7 +121,21 @@ export default function C_VetAppointmentBooking({ user, vet, userPets, selectedS
     const [selectedDateTimeSlot, setSelectedDateTimeSlot] = useState<DateTimeSlot>();
     const [selectedService, setSelectedService] = useState<string>(selectedServiceId || "");
     const [selectedPet, setSelectedPet] = useState<Pet>();
-    const [selectedAddress, setSelectedAddress] = useState<Home_Visit_Address>({});
+    const [selectedAddress, setSelectedAddress] = useState<Home_Visit_Address>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = sessionStorage.getItem('userSelectedAddress');
+            if (saved) return JSON.parse(saved);
+        }
+        return {};
+    });
+
+    useEffect(() => {
+        if (selectedAddress?.id) {
+            sessionStorage.setItem('userSelectedAddress', JSON.stringify(selectedAddress));
+        } else {
+            sessionStorage.removeItem('userSelectedAddress');
+        }
+    }, [selectedAddress]);
 
     const [vetAvailability, setVetAvailability] = useState<DaySlots[]>([]);
 
@@ -255,18 +269,25 @@ export default function C_VetAppointmentBooking({ user, vet, userPets, selectedS
                     {/* Right Content */}
                     <div className="md:w-8/20 flex flex-col p-6">
                         {/* Visit Type */}
-                        <div className="mb-4">
-                            <label className="block text-sm font-semibold mb-1">Visit Type</label>
-                            <div className="relative">
-                                <select className="font-semibold w-full bg-white border rounded px-3 py-2 appearance-none"
-                                    value={selectedVisitType?.id || ""}
-                                    onChange={(event) => setSelectedVisitType(VISIT_TYPES.find((item) => item.id === event.target.value))}>
-                                    <option value="" disabled hidden>Select Visit Type</option>
-                                    {VISIT_TYPES.map((v, i) => (
-                                        <option key={i} value={v.id}>{v.displayName}</option>
-                                    ))}
-                                </select>
-                                <IoChevronDown className="absolute right-3 top-3 text-gray-500" />
+                        <div className="mb-6">
+                            <label className="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">Visit Type</label>
+                            <div className="flex flex-wrap gap-3">
+                                {VISIT_TYPES.map((v, i) => {
+                                    const isSelected = selectedVisitType?.id === v.id;
+                                    return (
+                                        <button
+                                            key={i}
+                                            onClick={() => setSelectedVisitType(v)}
+                                            className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all shadow-sm ${
+                                                isSelected 
+                                                ? 'bg-pink-500 text-white shadow-pink-200 border border-transparent' 
+                                                : 'bg-white text-slate-600 border border-slate-200 hover:border-pink-300 hover:bg-pink-50'
+                                            }`}
+                                        >
+                                            {v.displayName}
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -284,35 +305,56 @@ export default function C_VetAppointmentBooking({ user, vet, userPets, selectedS
                         </div>
 
                         {/* Service */}
-                        <div className="mb-4">
-                        <label className="block text-sm font-semibold mb-1">Service</label>
-                        <div className="relative">
-                            <select className="font-semibold bg-white w-full border rounded px-3 py-2 appearance-none"
-                            value={selectedService}
-                            onChange={(event) => setSelectedService(event.target.value)}>
-                            <option value="" disabled hidden>Select Service</option>
-                            {vet?.tags.map((s, i) => (
-                                <option key={i} value={String(s.id)}>{s.name}</option>
-                            ))}
-                            </select>
-                            <IoChevronDown className="absolute right-3 top-3 text-gray-500" />
-                        </div>
+                        <div className="mb-6">
+                            <label className="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">Service</label>
+                            <div className="flex flex-wrap gap-3">
+                                {vet?.tags.map((s, i) => {
+                                    const isSelected = selectedService === String(s.id);
+                                    return (
+                                        <button
+                                            key={i}
+                                            onClick={() => setSelectedService(String(s.id))}
+                                            className={`px-4 py-2 rounded-xl font-medium text-sm transition-all shadow-sm ${
+                                                isSelected 
+                                                ? 'bg-indigo-500 text-white border border-transparent' 
+                                                : 'bg-white text-slate-600 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50'
+                                            }`}
+                                        >
+                                            {s.name}
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
 
                         {/* Select Pet */}
-                        <div className="mb-6">
-                        <label className="block text-sm font-semibold mb-1">Select Pet</label>
-                        <div className="relative">
-                            <select className="font-semibold bg-white w-full border rounded px-3 py-2 appearance-none"
-                            value={selectedPet?.id || ""}
-                            onChange={(event) => (setSelectedPet(userPets.find((item) => item.id === parseInt(event.target.value))))}>
-                            <option value="" disabled hidden>Select Pet</option>
-                            {userPets.map((p, i) => (
-                                <option key={i} value={p.id}>{p.name}</option>
-                            ))}
-                            </select>
-                            <IoChevronDown className="absolute right-3 top-3 text-gray-500" />
-                        </div>
+                        <div className="mb-8">
+                            <label className="block text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">Select Pet</label>
+                            <div className="flex flex-wrap gap-4">
+                                {userPets.map((p, i) => {
+                                    const isSelected = selectedPet?.id === p.id;
+                                    return (
+                                        <button
+                                            key={i}
+                                            onClick={() => setSelectedPet(p)}
+                                            className={`flex items-center gap-3 px-4 py-2 rounded-2xl transition-all shadow-sm border ${
+                                                isSelected 
+                                                ? 'bg-white border-pink-500 ring-2 ring-pink-100' 
+                                                : 'bg-white border-slate-200 hover:border-pink-300'
+                                            }`}
+                                        >
+                                            <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-100 flex-shrink-0">
+                                                {p.profile_url ? (
+                                                    <img src={p.profile_url} alt={p.name} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-slate-400 font-bold">{p.name[0]}</div>
+                                                )}
+                                            </div>
+                                            <span className={`font-semibold ${isSelected ? 'text-pink-600' : 'text-slate-700'}`}>{p.name}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
                         </div>
 
                         {/* Confirm Button */}

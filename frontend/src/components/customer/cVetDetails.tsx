@@ -79,7 +79,18 @@ export function useBrowserCoordinates() {
 export default function C_VetDetails({ selectedServiceVisitType, selectedServiceId, onVetSelection, onPageTypeChange }: C_VetDetailsProps) {
 
     const coordinates = useBrowserCoordinates();
-    const [addressCoordinates, setAddressCoordinates] = useState<Coordinates>();
+    const [addressCoordinates, setAddressCoordinates] = useState<Coordinates | undefined>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = sessionStorage.getItem('userSelectedAddress');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                if (parsed.latitude && parsed.longitude) {
+                    return { latitude: parsed.latitude, longitude: parsed.longitude };
+                }
+            }
+        }
+        return undefined;
+    });
     const [nearbyRadius, setNearbyRadius] = useState<number>(defaultNearByRadius);
     const [actualNearByRadius, setActualNearByRadius] = useState<number>(defaultNearByRadius);
 
@@ -171,8 +182,24 @@ export default function C_VetDetails({ selectedServiceVisitType, selectedService
         return () => onVetSelection(vet);
     };
 
-    const [selectedAddress, setSelectedAddress] = useState<Home_Visit_Address>({});
-    const [localSelectedAddress, setLocalSelectedAddress] = useState<Home_Visit_Address>({});
+    const [selectedAddress, setSelectedAddress] = useState<Home_Visit_Address>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = sessionStorage.getItem('userSelectedAddress');
+            if (saved) return JSON.parse(saved);
+        }
+        return {};
+    });
+    const [localSelectedAddress, setLocalSelectedAddress] = useState<Home_Visit_Address>(selectedAddress);
+    
+    useEffect(() => {
+        setLocalSelectedAddress(selectedAddress);
+        if (selectedAddress?.id) {
+            sessionStorage.setItem('userSelectedAddress', JSON.stringify(selectedAddress));
+        } else {
+            sessionStorage.removeItem('userSelectedAddress');
+        }
+    }, [selectedAddress]);
+
     const handleSelectedAddressChange = (selectedAddress: Home_Visit_Address) => {
         setSelectedAddress(selectedAddress);
     };

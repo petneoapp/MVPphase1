@@ -39,6 +39,8 @@ export interface AppointmentDetails {
     cancellationReason?: string | undefined;
     noShowTag?: string | undefined;
     noShowReason?: string | undefined;
+    notes?: string | undefined;
+    prescription?: string | undefined;
 }
 
 interface AppointmentStatusProps {
@@ -274,7 +276,14 @@ export default function AppointmentStatus({appointmentDetails, onPageTypeChange,
           ))}
           <div className="flex flex-col items-center min-h-screen justify-center bg-[#f9fafb]">
               <div className="w-full max-w-lg py-8 px-4 flex flex-col items-center bg-white shadow rounded-lg border border-gray-200 my-10">
-                  <div className="mb-4">
+              <div className="w-full flex items-center justify-between mb-4">
+                  <button
+                    onClick={handleGoHome}
+                    className="text-slate-500 hover:text-[var(--color-primary-600)] transition-colors font-medium flex items-center text-sm"
+                  >
+                    &larr; Back to Dashboard
+                  </button>
+                  <div className="flex justify-end flex-1">
                       {appointmentStatus === 'booked' && (
                           <StatusBadge status="success" label="Appointment Booked" />
                       )}
@@ -285,6 +294,7 @@ export default function AppointmentStatus({appointmentDetails, onPageTypeChange,
                           <StatusBadge status="info" label="Appointment Completed" />
                       )}
                   </div>
+              </div>
                   
                   {appointmentStatus === "cancelled" && appointmentDetails.noShowTag && (
                       <span className="mb-4 text-sm font-bold text-red-600">Tag: {appointmentDetails.noShowTag}</span>
@@ -296,6 +306,24 @@ export default function AppointmentStatus({appointmentDetails, onPageTypeChange,
                   <div className="w-full mb-6 text-left">
                       <TimelineView events={timelineEvents} />
                   </div>
+
+                  {appointmentStatus === 'completed' && (appointmentDetails.notes || appointmentDetails.prescription) && (
+                      <div className="w-full mb-6 bg-slate-50 border border-slate-200 rounded-xl p-4">
+                          <h3 className="font-semibold text-md text-slate-800 mb-3 border-b pb-2">Medical Summary</h3>
+                          {appointmentDetails.notes && (
+                              <div className="mb-3">
+                                  <h4 className="text-sm font-bold text-slate-600">Doctor's Notes</h4>
+                                  <p className="text-sm text-slate-700 whitespace-pre-wrap">{appointmentDetails.notes}</p>
+                              </div>
+                          )}
+                          {appointmentDetails.prescription && (
+                              <div>
+                                  <h4 className="text-sm font-bold text-slate-600">Prescription</h4>
+                                  <p className="text-sm text-slate-700 whitespace-pre-wrap">{appointmentDetails.prescription}</p>
+                              </div>
+                          )}
+                      </div>
+                  )}
 
                   {appointmentStatus === 'booked' && (
                       <>
