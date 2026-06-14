@@ -58,10 +58,10 @@ export default function PetArchivePage() {
                 {errors.map(err => (
                     <AlertBanner 
                         key={err.id} 
-                        type="error" 
+                        type="danger" 
                         title={err.title} 
                         message={err.message} 
-                        onClose={() => setErrors(curr => curr.filter(e => e.id !== err.id))} 
+                        onDismiss={() => setErrors(curr => curr.filter(e => e.id !== err.id))} 
                     />
                 ))}
 
