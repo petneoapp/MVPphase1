@@ -302,12 +302,12 @@ export default function PetDetailsPage() {
                     {/* Header */}
                     <div className="mb-8">
                         <div className="flex flex-nowrap items-center">
-                            <div className="relative w-25 h-25 mx-6">
+                            <div className="relative w-24 h-24 mx-6 overflow-hidden rounded-full">
                                 <Image
                                     src={pet?.profile_picture || "/images/d.png"}
-                                    alt={pet?.name   || ""}
+                                    alt={pet?.name   || "Pet"}
                                     fill
-                                    className="rounded-full border-4 border-white shadow-lg object-cover"
+                                    className="border-4 border-white shadow-lg object-cover"
                                     priority
                                 />
                             </div>
