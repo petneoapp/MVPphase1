@@ -19,7 +19,10 @@ import { DashboardErrorBoundary } from "@/components/common/DashboardErrorBounda
 export enum ServiceName {
     VET = "Vet",
     GROOMING = "Grooming",
-    BOARDING = "Boarding"
+    BOARDING = "Boarding",
+    TRAINING = "Training",
+    SITTING = "Sitting",
+    WALKING = "Walking"
 }
 
 export type Service = {
@@ -78,12 +81,31 @@ export default function C_DashboardMain({ user, pets, onViewPetDetails, onPageTy
         label: "Vaccination",
         icon: "/images/customer/vaccination_icon.png",
     },
+    {
+        id: "training",
+        label: "Training",
+        icon: "/images/customer/training_icon.png",
+        serviceName: ServiceName.TRAINING
+    },
+    {
+        id: "sitting",
+        label: "Pet Sitting",
+        icon: "/images/customer/sitting_icon.png",
+        serviceName: ServiceName.SITTING
+    },
+    {
+        id: "walking",
+        label: "Walking",
+        icon: "/images/customer/walking_icon.png",
+        serviceName: ServiceName.WALKING
+    },
     ];
 
     const HandleClickOnServices = (service: Service) => {
         onServiceSelection(service);
         if (service.id === "clinicVisit" || service.id === "homeVisit" || service.id === "online"
-            || service.id === "grooming" || service.id === "boarding") {
+            || service.id === "grooming" || service.id === "boarding"
+            || service.id === "training" || service.id === "sitting" || service.id === "walking") {
             onPageTypeChange(PageType.VET_DETAILS);
         }
     };
